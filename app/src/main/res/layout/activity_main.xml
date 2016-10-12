@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.jumproper.videofeedback.MainActivity"
+    android:background="#212121">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/image"
+        android:id="@+id/image_view"
+        android:cropToPadding="false"
+        android:layout_alignParentStart="false"
+        android:layout_above="@+id/view" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/image_view"
+        android:layout_above="@+id/button">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:text="Iterations (100 is Indefinite):"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/iterations"
+                android:max="100"
+                android:layout_below="@+id/textView"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/iter_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/iter_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/iterations"
+                android:layout_alignBottom="@+id/iterations"
+                android:gravity="center"
+                android:padding="10dp" />
+            <TextView
+                android:text="Rotation (Degrees):"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView2"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/iterations" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rotation"
+                android:max="360"
+                android:layout_below="@+id/textView2"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/iter_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rotate_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/rotation"
+                android:layout_alignBottom="@+id/rotation"
+                android:gravity="center"
+                android:padding="10dp" />
+
+        </RelativeLayout>
+    </ScrollView>
+
+    <Button
+        android:text="Start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/button"
+        android:onClick="feedback"
+        android:elevation="0dp" />
+
+    <view
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        class="android.support.v4.widget.Space"
+        android:layout_centerVertical="true"
+        android:id="@+id/view"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
