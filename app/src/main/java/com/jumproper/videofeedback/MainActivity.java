@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,13 +15,14 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView;
-    private SeekBar iterInput,rotateInput,offsetInput;
-    private TextView iterCount,rotateCount,offsetCount;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount;
     Bitmap img,overlay;
     int j=0;
     int iter;
-    float rotate,scale,offset;
+    float rotate,offset,center;
     boolean indefinite=false;
+    boolean running=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +31,13 @@ public class MainActivity extends AppCompatActivity {
         iterCount=(TextView)findViewById(R.id.iter_count);
         rotateCount=(TextView)findViewById(R.id.rotate_count);
         offsetCount=(TextView)findViewById(R.id.offset_count);
+        centerCount=(TextView)findViewById(R.id.center_count);
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
         offsetInput=(SeekBar)findViewById(R.id.offset);
+        centerInput=(SeekBar)findViewById(R.id.center);
         offset=2;
+        center=2;
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -89,7 +94,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        //img=((BitmapDrawable)imgView.getDrawable()).getBitmap();
+        centerInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                center=(float)(2+i/10.0);
+                centerCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
     }
     public void process(ImageView v){
@@ -101,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         Paint p=new Paint();
         Matrix matrix = new Matrix();
         matrix.setRotate(rotate*j,w/2, h/2);
-        matrix.postScale(.9f,.9f,w/2,w/2);
+        matrix.postScale(.9f,.9f,w/center,w/center);
         matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();
@@ -118,12 +139,12 @@ public class MainActivity extends AppCompatActivity {
         j++;
     }
     public void feedback(View v){
-        if (indefinite){
-            iter=0;
-            indefinite=false;
+        if(running){
+            return;
         }
         new Thread(new Runnable() {
             public void run() {
+                running=true;
                 imgView = (ImageView) findViewById(R.id.image_view);
                 if(indefinite){
                     while(indefinite) {
@@ -145,9 +166,20 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 }
+                running=false;
             }
+
         }).start();
 
+    }
+    public void refresh(View v){
+        iter=0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            imgView.setImageDrawable(getDrawable(R.drawable.image));
+        }
+        else{
+            imgView.setImageDrawable(getResources().getDrawable(R.drawable.image));
+        }
     }
 
 }

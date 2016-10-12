@@ -129,6 +129,39 @@
                 android:gravity="center"
                 android:padding="10dp" />
 
+            <TextView
+                android:text="Scale Center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView4"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/offset" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/center"
+                android:max="50"
+                android:layout_below="@+id/textView4"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/center_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/center_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/center"
+                android:layout_alignBottom="@+id/center"
+                android:gravity="center"
+                android:padding="10dp" />
+
         </RelativeLayout>
     </ScrollView>
 
@@ -149,5 +182,15 @@
         android:layout_centerVertical="true"
         android:id="@+id/view"
         android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/refresh"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/imageView"
+        android:tint="?android:attr/textColorPrimaryInverse"
+        android:onClick="refresh" />
 
 </RelativeLayout>
