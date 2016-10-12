@@ -14,12 +14,12 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView;
-    private SeekBar iterInput,rotateInput;
-    private TextView iterCount,rotateCount;
+    private SeekBar iterInput,rotateInput,offsetInput;
+    private TextView iterCount,rotateCount,offsetCount;
     Bitmap img,overlay;
     int j=0;
     int iter;
-    float rotate,scale;
+    float rotate,scale,offset;
     boolean indefinite=false;
 
     @Override
@@ -28,8 +28,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         iterCount=(TextView)findViewById(R.id.iter_count);
         rotateCount=(TextView)findViewById(R.id.rotate_count);
+        offsetCount=(TextView)findViewById(R.id.offset_count);
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
+        offsetInput=(SeekBar)findViewById(R.id.offset);
+        offset=2;
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -69,6 +72,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        offsetInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                offset=(float)(2+i/10.0);
+                offsetCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         //img=((BitmapDrawable)imgView.getDrawable()).getBitmap();
 
     }
@@ -82,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         Matrix matrix = new Matrix();
         matrix.setRotate(rotate*j,w/2, h/2);
         matrix.postScale(.9f,.9f,w/2,w/2);
-        matrix.postTranslate(w/2,h/2);
+        matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();
         flipx.setScale(-1,1);
@@ -98,6 +118,10 @@ public class MainActivity extends AppCompatActivity {
         j++;
     }
     public void feedback(View v){
+        if (indefinite){
+            iter=0;
+            indefinite=false;
+        }
         new Thread(new Runnable() {
             public void run() {
                 imgView = (ImageView) findViewById(R.id.image_view);
