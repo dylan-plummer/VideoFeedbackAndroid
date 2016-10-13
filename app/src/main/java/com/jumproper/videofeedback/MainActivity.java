@@ -1,28 +1,44 @@
 package com.jumproper.videofeedback;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView;
-    private SeekBar iterInput,rotateInput,offsetInput,centerInput;
-    private TextView iterCount,rotateCount,offsetCount,centerCount;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount;
     Bitmap img,overlay;
     int j=0;
     int iter;
-    float rotate,offset,center;
+    float rotate,offset,center,scale;
     boolean indefinite=false;
     boolean running=false;
+    final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE=36;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,18 +48,23 @@ public class MainActivity extends AppCompatActivity {
         rotateCount=(TextView)findViewById(R.id.rotate_count);
         offsetCount=(TextView)findViewById(R.id.offset_count);
         centerCount=(TextView)findViewById(R.id.center_count);
+        scaleCount=(TextView)findViewById(R.id.scale_count);
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
         offsetInput=(SeekBar)findViewById(R.id.offset);
         centerInput=(SeekBar)findViewById(R.id.center);
+        scaleInput=(SeekBar)findViewById(R.id.scale);
         iterCount.setText(""+iterInput.getProgress());
         rotateCount.setText(""+rotateInput.getProgress());
         offsetCount.setText(""+offsetInput.getProgress());
         rotateCount.setText(""+rotateInput.getProgress());
+        scaleCount.setText("."+(100-scaleInput.getProgress()));
         iter=iterInput.getProgress();
         rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
         offset=2+offsetInput.getProgress();
         center=2+centerInput.getProgress();
+        scale=(float)((100-scaleInput.getProgress())/100.0);
+
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -117,10 +138,31 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        scaleInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                scale=(float)((100-i)/100.0);
+                scaleCount.setText("."+(100-i));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
     }
     public void process(ImageView v){
-        img=((BitmapDrawable)v.getDrawable()).getBitmap();
+        if(v.getDrawable()==null){
+            Log.e("nullDrawable","ImageView not yet updated!");
+            return;
+        }
+        img = ((BitmapDrawable) v.getDrawable()).getBitmap();
         int w=img.getWidth();
         int h=img.getHeight();
         overlay=img.copy(Bitmap.Config.ARGB_8888, true);
@@ -128,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         Paint p=new Paint();
         Matrix matrix = new Matrix();
         matrix.setRotate(rotate*j,w/2, h/2);
-        matrix.postScale(.95f,.95f,w/center,w/center);
+        matrix.postScale(scale,scale,w/center,w/center);
         matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();
@@ -157,11 +199,11 @@ public class MainActivity extends AppCompatActivity {
                 if(indefinite&&running){
                     while(indefinite) {
                         process(imgView);
-                        imgView.post(new Runnable() {
+                        imgView.postDelayed(new Runnable() {
                             public void run() {
                                 imgView.setImageBitmap(overlay);
                             }
-                        });
+                        },5);
                     }
                 }
                 else {
@@ -183,14 +225,93 @@ public class MainActivity extends AppCompatActivity {
         running=false;
     }
     public void refresh(View v){
-        running=false;
+        if(running) {
+            running = false;
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             imgView.setImageDrawable(getDrawable(R.drawable.image));
         }
         else{
             imgView.setImageDrawable(getResources().getDrawable(R.drawable.image));
         }
+        j=0;
 
+    }
+    public void saveImage(View v){
+        getPermission();
+    }
+    public void getPermission(){
+        if (!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+            return;
+        }
+
+        if ((ContextCompat.checkSelfPermission(MainActivity.this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) ||
+                (ContextCompat.checkSelfPermission(MainActivity.this,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED)){
+
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
+        else{
+            galleryAddPic(((BitmapDrawable)imgView.getDrawable()).getBitmap());
+            Toast.makeText(MainActivity.this,"Save image to gallery!", Toast.LENGTH_SHORT).show();
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //permission granted, yay!
+                    galleryAddPic(((BitmapDrawable)imgView.getDrawable()).getBitmap());
+                    Toast.makeText(MainActivity.this,"Save image to gallery!", Toast.LENGTH_SHORT).show();
+                    return;
+
+                } else {
+                    // permission denied, boo!
+                    Toast.makeText(MainActivity.this,"Cannot save to gallery without permission.", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
+    }
+    private void galleryAddPic(Bitmap img) {
+        FileOutputStream out = null;
+        String fileName="video_feedback_"+System.currentTimeMillis()+".jpg";
+        String path=Environment.getExternalStorageDirectory().toString()+"/VideoFeedback";
+        File dir=new File(path);
+        dir.mkdir();
+        File f=new File(dir,fileName);
+        Log.e("filePath",path);
+        Log.e("file",f.toString());
+
+        try {
+            out = new FileOutputStream(f);
+            img.compress(Bitmap.CompressFormat.JPEG, 50, out);
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Images.Media.DATA,f.getAbsolutePath());
+            values.put(MediaStore.Images.Media.DESCRIPTION,"Created with Video Feedback app.");
+            values.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
+            MainActivity.this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

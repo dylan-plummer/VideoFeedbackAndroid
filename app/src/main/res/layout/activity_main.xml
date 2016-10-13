@@ -12,15 +12,6 @@
     tools:context="com.jumproper.videofeedback.MainActivity"
     android:background="#212121">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/image"
-        android:id="@+id/image_view"
-        android:cropToPadding="false"
-        android:layout_alignParentStart="false"
-        android:layout_above="@+id/view" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -166,6 +157,40 @@
                 android:gravity="center"
                 android:padding="10dp" />
 
+            <TextView
+                android:text="Scale Value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView5"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/center" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/scale"
+                android:max="20"
+                android:progress="5"
+                android:layout_below="@+id/textView5"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/scale_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/scale_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/scale"
+                android:layout_alignBottom="@+id/scale"
+                android:gravity="center"
+                android:padding="10dp" />
+
         </RelativeLayout>
     </ScrollView>
 
@@ -178,6 +203,17 @@
         android:id="@+id/button"
         android:onClick="feedback"
         android:elevation="0dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@android:drawable/stat_sys_download_done"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/imageView2"
+        android:layout_alignTop="@+id/imageView"
+        android:padding="10dp"
+        android:onClick="saveImage" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -198,5 +234,14 @@
         android:layout_centerVertical="true"
         android:id="@+id/view"
         android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/image"
+        android:id="@+id/image_view"
+        android:cropToPadding="false"
+        android:layout_alignParentStart="false"
+        android:layout_above="@+id/view" />
 
 </RelativeLayout>
