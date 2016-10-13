@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 rotateCount.setText(""+i);
-                rotate=(float)(i*Math.PI/180)/50;
+                rotate=(float)(i*Math.PI/360)/50;
             }
 
             @Override
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         offsetInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                offset=(float)(2+i/10.0);
+                offset=(float)(2+i/50.0);
                 offsetCount.setText(""+i);
             }
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         Paint p=new Paint();
         Matrix matrix = new Matrix();
         matrix.setRotate(rotate*j,w/2, h/2);
-        matrix.postScale(.9f,.9f,w/center,w/center);
+        matrix.postScale(.95f,.95f,w/center,w/center);
         matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();

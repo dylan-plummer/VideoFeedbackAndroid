@@ -175,6 +175,19 @@
         android:onClick="feedback"
         android:elevation="0dp" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/refresh"
+        android:id="@+id/imageView"
+        android:tint="?android:attr/textColorPrimaryInverse"
+        android:onClick="refresh"
+        android:layout_alignTop="@+id/textView4"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:padding="5dp" />
+
     <view
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -182,15 +195,5 @@
         android:layout_centerVertical="true"
         android:id="@+id/view"
         android:layout_centerHorizontal="true" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/refresh"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/imageView"
-        android:tint="?android:attr/textColorPrimaryInverse"
-        android:onClick="refresh" />
 
 </RelativeLayout>
