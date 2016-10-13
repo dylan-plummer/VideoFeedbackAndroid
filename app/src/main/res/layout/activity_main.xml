@@ -49,7 +49,8 @@
                 android:layout_alignParentStart="true"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:layout_toStartOf="@+id/iter_count" />
+                android:layout_toStartOf="@+id/iter_count"
+                android:progress="50" />
 
             <TextView
                 android:text="1"
@@ -82,7 +83,8 @@
                 android:layout_alignParentStart="true"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:layout_toStartOf="@+id/iter_count" />
+                android:progress="180"
+                android:layout_toStartOf="@+id/rotate_count" />
 
             <TextView
                 android:text="1"
@@ -109,12 +111,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/offset"
-                android:max="10"
+                android:max="5"
                 android:layout_below="@+id/textView3"
                 android:layout_alignParentStart="true"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
-                android:layout_toStartOf="@+id/rotate_count" />
+                android:layout_toStartOf="@+id/rotate_count"
+                android:progress="0" />
 
             <TextView
                 android:text="1"
@@ -143,6 +146,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/center"
                 android:max="50"
+                android:progress="0"
                 android:layout_below="@+id/textView4"
                 android:layout_alignParentStart="true"
                 android:paddingTop="10dp"
@@ -182,7 +186,6 @@
         android:id="@+id/imageView"
         android:tint="?android:attr/textColorPrimaryInverse"
         android:onClick="refresh"
-        android:layout_alignTop="@+id/textView4"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"

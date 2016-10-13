@@ -36,8 +36,14 @@ public class MainActivity extends AppCompatActivity {
         rotateInput=(SeekBar)findViewById(R.id.rotation);
         offsetInput=(SeekBar)findViewById(R.id.offset);
         centerInput=(SeekBar)findViewById(R.id.center);
-        offset=2;
-        center=2;
+        iterCount.setText(""+iterInput.getProgress());
+        rotateCount.setText(""+rotateInput.getProgress());
+        offsetCount.setText(""+offsetInput.getProgress());
+        rotateCount.setText(""+rotateInput.getProgress());
+        iter=iterInput.getProgress();
+        rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
+        offset=2+offsetInput.getProgress();
+        center=2+centerInput.getProgress();
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -80,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         offsetInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                offset=(float)(2+i/50.0);
+                offset=2+(float)(i/4.0);
                 offsetCount.setText(""+i);
             }
 
@@ -97,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         centerInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                center=(float)(2+i/10.0);
+                center=(float)(2+i);
                 centerCount.setText(""+i);
             }
 
@@ -140,13 +146,15 @@ public class MainActivity extends AppCompatActivity {
     }
     public void feedback(View v){
         if(running){
+            running=false;
             return;
         }
+
         new Thread(new Runnable() {
             public void run() {
                 running=true;
                 imgView = (ImageView) findViewById(R.id.image_view);
-                if(indefinite){
+                if(indefinite&&running){
                     while(indefinite) {
                         process(imgView);
                         imgView.post(new Runnable() {
@@ -158,28 +166,31 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     for (int i = 0; i < iter; i++) {
-                        process(imgView);
-                        imgView.post(new Runnable() {
-                            public void run() {
-                                imgView.setImageBitmap(overlay);
-                            }
-                        });
+                        if(running) {
+                            process(imgView);
+                            imgView.post(new Runnable() {
+                                public void run() {
+                                    imgView.setImageBitmap(overlay);
+                                }
+                            });
+                        }
                     }
                 }
                 running=false;
             }
 
         }).start();
-
+        running=false;
     }
     public void refresh(View v){
-        iter=0;
+        running=false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             imgView.setImageDrawable(getDrawable(R.drawable.image));
         }
         else{
             imgView.setImageDrawable(getResources().getDrawable(R.drawable.image));
         }
+
     }
 
 }
