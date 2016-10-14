@@ -10,6 +10,8 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jumproper.videofeedback.MainActivity"
+    tools:showIn="@layout/activity_main_toolbar"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:background="#212121">
 
     <ScrollView
@@ -69,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/rotation"
-                android:max="360"
+                android:max="720"
                 android:layout_below="@+id/textView2"
                 android:layout_alignParentStart="true"
                 android:paddingTop="10dp"
@@ -207,13 +209,25 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/stat_sys_download_done"
+        app:srcCompat="@drawable/ic_clear_material"
+        android:id="@+id/imageView4"
+        android:layout_alignParentEnd="true"
+        android:padding="5dp"
+        android:tint="@color/white"
+        android:alpha=".75"
+        android:onClick="clearImage" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:id="@+id/imageView2"
         android:layout_alignTop="@+id/imageView"
         android:padding="10dp"
-        android:onClick="saveImage" />
+        android:onClick="saveImage"
+        android:src="@android:drawable/stat_sys_download"
+        android:alpha=".75" />
 
     <ImageView
         android:layout_width="wrap_content"
@@ -225,7 +239,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:padding="5dp" />
+        android:padding="5dp"
+        android:alpha=".75" />
 
     <view
         android:layout_width="wrap_content"
@@ -242,6 +257,20 @@
         android:id="@+id/image_view"
         android:cropToPadding="false"
         android:layout_alignParentStart="false"
-        android:layout_above="@+id/view" />
+        android:layout_above="@+id/view"
+        android:layout_below="@+id/imageView4" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/gallery"
+        android:id="@+id/open_image"
+        android:padding="5dp"
+        android:tint="?android:attr/textColorPrimaryInverse"
+        android:alpha=".75"
+        android:layout_alignTop="@+id/image_view"
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"
+        android:onClick="openImage" />
 
 </RelativeLayout>

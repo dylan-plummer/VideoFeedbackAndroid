@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,27 +25,35 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
-    private ImageView imgView;
+    private ImageView imgView,openImage;
     private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput;
     private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount;
-    Bitmap img,overlay;
+    Bitmap img,overlay,original;
     int j=0;
     int iter;
     float rotate,offset,center,scale;
     boolean indefinite=false;
     boolean running=false;
     final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE=36;
+    final int REQUEST_GALLERY_IMAGE=42;
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        mAuth=FirebaseAuth.getInstance();
+
         iterCount=(TextView)findViewById(R.id.iter_count);
         rotateCount=(TextView)findViewById(R.id.rotate_count);
         offsetCount=(TextView)findViewById(R.id.offset_count);
@@ -54,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         offsetInput=(SeekBar)findViewById(R.id.offset);
         centerInput=(SeekBar)findViewById(R.id.center);
         scaleInput=(SeekBar)findViewById(R.id.scale);
+        imgView=(ImageView)findViewById(R.id.image_view);
+        openImage=(ImageView)findViewById(R.id.open_image);
         iterCount.setText(""+iterInput.getProgress());
         rotateCount.setText(""+rotateInput.getProgress());
         offsetCount.setText(""+offsetInput.getProgress());
@@ -64,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
         offset=2+offsetInput.getProgress();
         center=2+centerInput.getProgress();
         scale=(float)((100-scaleInput.getProgress())/100.0);
-
+        img=((BitmapDrawable) imgView.getDrawable()).getBitmap();
+        original=img.copy(Bitmap.Config.ARGB_8888,true);
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -107,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         offsetInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                offset=2+(float)(i/4.0);
+                offset=2+(float)(i/10.0);
                 offsetCount.setText(""+i);
             }
 
@@ -156,6 +169,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        DrawerCreate drawer=new DrawerCreate();
+        drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
+
     }
     public void process(ImageView v){
         if(v.getDrawable()==null){
@@ -188,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
     }
     public void feedback(View v){
         if(running){
+            indefinite=false;
             running=false;
             return;
         }
@@ -203,18 +220,18 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
                                 imgView.setImageBitmap(overlay);
                             }
-                        },5);
+                        },50);
                     }
                 }
                 else {
                     for (int i = 0; i < iter; i++) {
                         if(running) {
                             process(imgView);
-                            imgView.post(new Runnable() {
+                            imgView.postDelayed(new Runnable() {
                                 public void run() {
                                     imgView.setImageBitmap(overlay);
                                 }
-                            });
+                            },50);
                         }
                     }
                 }
@@ -226,14 +243,10 @@ public class MainActivity extends AppCompatActivity {
     }
     public void refresh(View v){
         if(running) {
+            indefinite=false;
             running = false;
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            imgView.setImageDrawable(getDrawable(R.drawable.image));
-        }
-        else{
-            imgView.setImageDrawable(getResources().getDrawable(R.drawable.image));
-        }
+        imgView.setImageBitmap(original);
         j=0;
 
     }
@@ -259,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else{
             galleryAddPic(((BitmapDrawable)imgView.getDrawable()).getBitmap());
-            Toast.makeText(MainActivity.this,"Save image to gallery!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this,"Saved image to gallery!", Toast.LENGTH_SHORT).show();
         }
     }
     @Override
@@ -272,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission granted, yay!
                     galleryAddPic(((BitmapDrawable)imgView.getDrawable()).getBitmap());
-                    Toast.makeText(MainActivity.this,"Save image to gallery!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this,"Saved image to gallery!", Toast.LENGTH_SHORT).show();
                     return;
 
                 } else {
@@ -312,6 +325,37 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+    public void clearImage(View v){
+        j=0;
+        running=false;
+        imgView.setVisibility(View.INVISIBLE);
+        openImage.setVisibility(View.VISIBLE);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_GALLERY_IMAGE && resultCode == RESULT_OK) {
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                imgView.setVisibility(View.VISIBLE);
+                openImage.setVisibility(View.INVISIBLE);
+                imgView.setImageBitmap(bitmap);
+                original=bitmap.copy(Bitmap.Config.ARGB_8888,true);
+            } catch (IOException e) {
+                Toast.makeText(MainActivity.this,"Could not load image",Toast.LENGTH_SHORT);
+                e.printStackTrace();
+            }
+        }
+    }
+    public void openImage(View v){
+        dispatchVideoFromGalleryIntent();
+    }
+    private void dispatchVideoFromGalleryIntent(){
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_GALLERY_IMAGE);
     }
 
 }
