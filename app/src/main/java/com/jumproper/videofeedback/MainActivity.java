@@ -8,8 +8,6 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,7 +26,6 @@ import android.widget.Toast;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -42,7 +39,8 @@ public class MainActivity extends AppCompatActivity {
     float rotate,offset,center,scale;
     boolean indefinite=false;
     boolean running=false;
-    final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE=36;
+    final int REQUEST_SAVE_IMAGE=36;
+    final int REQUEST_OPEN_IMAGE=69;
     final int REQUEST_GALLERY_IMAGE=42;
     FirebaseAuth mAuth;
 
@@ -251,9 +249,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void saveImage(View v){
-        getPermission();
+        getPermissionSave();
     }
-    public void getPermission(){
+    public void getPermissionSave(){
         if (!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
             return;
         }
@@ -268,18 +266,39 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
                             android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                    REQUEST_SAVE_IMAGE);
         }
         else{
             galleryAddPic(((BitmapDrawable)imgView.getDrawable()).getBitmap());
             Toast.makeText(MainActivity.this,"Saved image to gallery!", Toast.LENGTH_SHORT).show();
         }
     }
+    public void getPermissionOpen(){
+        if (!(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)) {
+            return;
+        }
+
+        if ((ContextCompat.checkSelfPermission(MainActivity.this,
+                android.Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) ||
+                (ContextCompat.checkSelfPermission(MainActivity.this,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED)){
+
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_OPEN_IMAGE);
+        }
+        else{
+            dispatchVideoFromGalleryIntent();
+        }
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+            case REQUEST_SAVE_IMAGE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -291,6 +310,20 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // permission denied, boo!
                     Toast.makeText(MainActivity.this,"Cannot save to gallery without permission.", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+            case REQUEST_OPEN_IMAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //permission granted, yay!
+                    dispatchVideoFromGalleryIntent();
+                    return;
+
+                } else {
+                    // permission denied, boo!
+                    Toast.makeText(MainActivity.this,"Cannot open from gallery without permission.", Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
@@ -337,10 +370,13 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_GALLERY_IMAGE && resultCode == RESULT_OK) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
+                if(bitmap.getWidth()*bitmap.getHeight()>(1920*1080)){
+                    bitmap=resize(bitmap,1);
+                }
                 imgView.setVisibility(View.VISIBLE);
                 openImage.setVisibility(View.INVISIBLE);
                 imgView.setImageBitmap(bitmap);
-                original=bitmap.copy(Bitmap.Config.ARGB_8888,true);
+                original = bitmap.copy(Bitmap.Config.ARGB_8888, true);
             } catch (IOException e) {
                 Toast.makeText(MainActivity.this,"Could not load image",Toast.LENGTH_SHORT);
                 e.printStackTrace();
@@ -348,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void openImage(View v){
-        dispatchVideoFromGalleryIntent();
+        getPermissionOpen();
     }
     private void dispatchVideoFromGalleryIntent(){
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -356,6 +392,16 @@ public class MainActivity extends AppCompatActivity {
 
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_GALLERY_IMAGE);
+    }
+    public Bitmap resize(Bitmap img,int scale){
+        int newW=(int)(img.getWidth()/(1+scale/20.0));
+        int newH=(int)(img.getHeight()/(1+scale/20.0));
+        if(newH*newW>1920*1080){
+            Log.e("resize","w="+newW+" h="+newH);
+            return resize(img,(scale+1));
+        }
+        Log.e("resize","w="+newW+" h="+newH);
+        return Bitmap.createScaledBitmap(img,newW,newH,false);
     }
 
 }

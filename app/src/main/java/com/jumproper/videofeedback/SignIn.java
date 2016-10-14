@@ -115,6 +115,9 @@ public class SignIn extends AppCompatActivity {
             } else {
                 // Google Sign In failed, update UI appropriately
                 // ...
+                Toast.makeText(SignIn.this, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
@@ -140,6 +143,7 @@ public class SignIn extends AppCompatActivity {
                             Log.w("Auth", "signInWithCredential", task.getException());
                             Toast.makeText(SignIn.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
+                            finish();
                         }
                         // ...
                     }
