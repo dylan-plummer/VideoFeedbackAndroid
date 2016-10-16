@@ -18,7 +18,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/image_view"
-        android:layout_above="@+id/button">
+        android:layout_above="@+id/button"
+        android:scrollbarAlwaysDrawVerticalTrack="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
