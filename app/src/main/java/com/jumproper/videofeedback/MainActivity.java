@@ -1,6 +1,10 @@
 package com.jumproper.videofeedback;
 
+import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,19 +16,33 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -39,10 +57,17 @@ public class MainActivity extends AppCompatActivity {
     float rotate,offset,center,scale;
     boolean indefinite=false;
     boolean running=false;
+    boolean upload=false;
     final int REQUEST_SAVE_IMAGE=36;
     final int REQUEST_OPEN_IMAGE=69;
     final int REQUEST_GALLERY_IMAGE=42;
+    String uploadName;
+    String uploadCreationName;
     FirebaseAuth mAuth;
+    FirebaseStorage storage;
+    StorageReference storageRef;
+    private long fileSize;
+    private int notifyId=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mAuth=FirebaseAuth.getInstance();
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReferenceFromUrl("gs://video-feedback-1bd67.appspot.com");
 
         iterCount=(TextView)findViewById(R.id.iter_count);
         rotateCount=(TextView)findViewById(R.id.rotate_count);
@@ -171,6 +198,14 @@ public class MainActivity extends AppCompatActivity {
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
 
     }
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(mAuth.getCurrentUser()!=null&&upload) {
+            upload=false;
+            uploadImage();
+        }
+    }
     public void process(ImageView v){
         if(v.getDrawable()==null){
             Log.e("nullDrawable","ImageView not yet updated!");
@@ -188,11 +223,11 @@ public class MainActivity extends AppCompatActivity {
         matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();
-        flipx.setScale(-1,1);
+        flipx.setScale(-1f,1f);
         flipx.postTranslate(w,0);
 
         Matrix flipy = new Matrix();
-        flipy.setScale(1,-1);
+        flipy.setScale(1f,-1);
         flipy.postTranslate(0,h);
 
         canvas.drawBitmap(img, matrix, p);
@@ -200,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawBitmap(overlay,flipy,p);
         j++;
     }
+
     public void feedback(View v){
         if(running){
             indefinite=false;
@@ -214,22 +250,22 @@ public class MainActivity extends AppCompatActivity {
                 if(indefinite&&running){
                     while(indefinite) {
                         process(imgView);
-                        imgView.postDelayed(new Runnable() {
+                        imgView.post(new Runnable() {
                             public void run() {
                                 imgView.setImageBitmap(overlay);
                             }
-                        },50);
+                        });
                     }
                 }
                 else {
                     for (int i = 0; i < iter; i++) {
                         if(running) {
                             process(imgView);
-                            imgView.postDelayed(new Runnable() {
+                            imgView.post(new Runnable() {
                                 public void run() {
                                     imgView.setImageBitmap(overlay);
                                 }
-                            },50);
+                            });
                         }
                     }
                 }
@@ -249,6 +285,8 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void saveImage(View v){
+        running=false;
+        indefinite=false;
         getPermissionSave();
     }
     public void getPermissionSave(){
@@ -358,7 +396,111 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        askToUpload();
     }
+    public void askToUpload(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this); //new alert dialog
+        builder.setTitle("Upload"); //dialog title
+        LayoutInflater inflater = (LayoutInflater)MainActivity.this.getSystemService (Context.LAYOUT_INFLATER_SERVICE); //needed to display custom layout
+        final View textBoxes=inflater.inflate(R.layout.upload_dialog_layout,null); //custom layout file now a view object
+        builder.setView(textBoxes); //set view to custom layout
+        final EditText name = (EditText)textBoxes.findViewById(R.id.upload_name);
+        final EditText creationName = (EditText)textBoxes.findViewById(R.id.upload_creation_name);
+        final CheckBox anon = (CheckBox)textBoxes.findViewById(R.id.anonymous_upload);
+        anon.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    name.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    name.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(anon.isChecked()){
+                    uploadName="Anonymous";
+                    uploadCreationName=creationName.getText().toString();
+                }
+                else{
+                    uploadName=name.getText().toString();
+                    uploadCreationName=creationName.getText().toString();
+                }
+                if(mAuth.getCurrentUser()==null){
+                    upload=true;
+                    Intent intent = new Intent(MainActivity.this, SignIn.class);
+                    startActivity(intent);
+                }
+                else{
+                    uploadImage();
+                }
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
+    public void uploadImage(){
+        Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
+        byte[] data = baos.toByteArray();
+        StorageReference uploadRef=storageRef.child(mAuth.getCurrentUser().getUid()).child("feedback_"+System.currentTimeMillis());
+        Log.e("Upload","Path "+uploadRef.getPath());
+        StorageMetadata metadata = new StorageMetadata.Builder()
+                .setContentType("image/jpeg")
+                .setCustomMetadata("user", mAuth.getCurrentUser().getEmail())
+                .setCustomMetadata("name", uploadName)
+                .setCustomMetadata("description", uploadCreationName)
+                .build();
+        UploadTask uploadTask=uploadRef.putBytes(data,metadata);
+        fileSize=uploadTask.getSnapshot().getTotalByteCount();
+        final NotificationManager mNotifyManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        final NotificationCompat.Builder mBuilder=new NotificationCompat.Builder(this);
+        mBuilder.setContentTitle("Uploading image")
+                .setContentText("Upload in progress...")
+                .setSmallIcon(R.drawable.icon);
+        Toast.makeText(MainActivity.this,"Starting upload.  You can see its progress in the notification bar.",Toast.LENGTH_LONG).show();
+        mBuilder.setProgress((int)fileSize, 0, false);
+        mNotifyManager.notify(notifyId, mBuilder.build()); //display notification
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this,"Sorry your image could not be uploaded at this time.",Toast.LENGTH_SHORT).show();
+                Log.e("Upload",e.toString()+" "+e.getCause().toString());
+                Log.e("Upload","Auth: "+mAuth.getCurrentUser().getEmail());
+            }
+        });
+        uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                fileSize=taskSnapshot.getTotalByteCount();
+                mBuilder.setProgress((int)fileSize, (int)taskSnapshot.getBytesTransferred(), false);
+                mNotifyManager.notify(notifyId, mBuilder.build()); //display notification
+            }
+        });
+        uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                mBuilder.setProgress(0,0,false);
+                mBuilder.setContentText("Upload complete, thank you!");
+                mNotifyManager.notify(notifyId, mBuilder.build()); //display notification
+                Toast.makeText(MainActivity.this,"Thank you for your creation! Check it out on the public page!",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
     public void clearImage(View v){
         j=0;
         running=false;

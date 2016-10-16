@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Would you like to share your creation with the world?"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView6"
+        android:padding="10dp"
+        android:gravity="center"
+        android:textSize="14sp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:text=""
+        android:id="@+id/upload_name"
+        android:hint="Enter your name"
+        android:padding="10dp" />
+
+    <CheckBox
+        android:text="Anonymous"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/anonymous_upload"
+        android:padding="10dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:ems="10"
+        android:id="@+id/upload_creation_name"
+        android:padding="10dp"
+        android:text=""
+        android:hint="Name your creation! (Optional)" />
+</LinearLayout>

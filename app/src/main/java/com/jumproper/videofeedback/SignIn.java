@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
@@ -35,6 +37,7 @@ public class SignIn extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
 
        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestServerAuthCode(getString(R.string.google_sign_in_auth_id))
@@ -70,6 +73,10 @@ public class SignIn extends AppCompatActivity {
                 // ...
             }
         };
+
+        ProgressBar loading=(ProgressBar)findViewById(R.id.progress_bar);
+        loading.setIndeterminate(true);
+        loading.setVisibility(View.VISIBLE);
         signIn();
     }
     @Override
