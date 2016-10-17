@@ -1,5 +1,6 @@
 package com.jumproper.videofeedback;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +35,7 @@ public class PublicImages extends AppCompatActivity {
     public ArrayList<ImageData> topImages=new ArrayList<>();
     boolean rated=false;
     int index=0;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +43,7 @@ public class PublicImages extends AppCompatActivity {
         setContentView(R.layout.activity_public_images);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        mAuth=FirebaseAuth.getInstance();
 
         currentImage=(ImageView)findViewById(R.id.current_image);
         rate=(ImageView)findViewById(R.id.image_rating);
@@ -55,7 +59,7 @@ public class PublicImages extends AppCompatActivity {
     public void fillImageList() {
         FirebaseDatabase fb = FirebaseDatabase.getInstance();
         DatabaseReference myRef = fb.getReference("images");
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator<ImageData> id = new GenericTypeIndicator<ImageData>() {};
@@ -119,47 +123,59 @@ public class PublicImages extends AppCompatActivity {
         }
     }
     public void nextImage(View v){
-        index++;
-        if(index<topImages.size()){
+        if(index+1<topImages.size()){
             currentImage.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.VISIBLE);
+            index++;
             setData(topImages.get(index));
         }
-        else{
-            index--;
-        }
+
     }
     public void previousImage(View v){
-        index--;
-        if(index>-1){
+        if(index-1>-1){
             currentImage.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.VISIBLE);
+            index--;
             setData(topImages.get(index));
-        }
-        else{
-            index++;
         }
     }
     public void rateImage(View v){
+        if(mAuth.getCurrentUser()==null){
+            Intent intent = new Intent(PublicImages.this, SignIn.class);
+            startActivity(intent);
+            return;
+        }
         if(!rated) {
-            topImages.get(index).incrementVotes();
-            votes.setText("" + topImages.get(index).getVotes());
+            ImageData data=topImages.get(index);
+            data.incrementVotes();
+            votes.setText("" + data.getVotes());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 rate.setImageDrawable(getDrawable(R.drawable.star_filled));
             } else {
                 rate.setImageDrawable(getResources().getDrawable(R.drawable.star_filled));
             }
             rated=true;
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("images").child(data.getuId()).child(data.getKey()).child("votes");
+            myRef.setValue(data.getVotes());
+            myRef = database.getReference("votes").child(mAuth.getCurrentUser().getUid());
+            myRef.child(data.getKey()).setValue(true);
         }
         else{
-            topImages.get(index).decrementVotes();
-            votes.setText("" + topImages.get(index).getVotes());
+            ImageData data=topImages.get(index);
+            data.decrementVotes();
+            votes.setText("" + data.getVotes());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 rate.setImageDrawable(getDrawable(R.drawable.star_empty));
             } else {
                 rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
             }
             rated=false;
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("images").child(data.getuId()).child(data.getKey()).child("votes");
+            myRef.setValue(data.getVotes());
+            myRef = database.getReference("votes").child(mAuth.getCurrentUser().getUid());
+            myRef.child(data.getKey()).setValue(false);
         }
     }
 }
