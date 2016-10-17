@@ -93,6 +93,33 @@ public class PublicImages extends AppCompatActivity {
         title.setText(data.getName());
         author.setText(data.getUser());
         votes.setText(""+data.getVotes());
+        if(mAuth.getCurrentUser()!=null) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database.getReference("votes").child(mAuth.getCurrentUser().getUid()).child(data.getKey());
+            myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if ((boolean) (dataSnapshot.getValue()) == false) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            rate.setImageDrawable(getDrawable(R.drawable.star_empty));
+                        } else {
+                            rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
+                        }
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            rate.setImageDrawable(getDrawable(R.drawable.star_filled));
+                        } else {
+                            rate.setImageDrawable(getResources().getDrawable(R.drawable.star_filled));
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
