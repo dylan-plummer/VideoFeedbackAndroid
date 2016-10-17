@@ -500,8 +500,9 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"Thank you for your creation! Check it out on the public page!",Toast.LENGTH_SHORT).show();
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference("images").child(mAuth.getCurrentUser().getUid());
-                ImageData imageData=new ImageData(uploadName,uploadCreationName,0,taskSnapshot.getDownloadUrl().toString());
-                myRef.child(myRef.push().getKey()).setValue(imageData);
+                String key=myRef.push().getKey();
+                ImageData imageData=new ImageData(uploadName,uploadCreationName,0,taskSnapshot.getDownloadUrl().toString(),System.currentTimeMillis(),key,mAuth.getCurrentUser().getUid());
+                myRef.child(key).setValue(imageData);
             }
         });
     }
