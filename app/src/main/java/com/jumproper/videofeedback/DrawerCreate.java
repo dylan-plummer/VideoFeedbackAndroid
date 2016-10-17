@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +32,7 @@ public class DrawerCreate extends AppCompatActivity{
 
         new DrawerBuilder().withActivity(activity).build();
         PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Video Feedback");
+        PrimaryDrawerItem publicImagesItem=new PrimaryDrawerItem().withName("Public Gallery");
         final ProfileDrawerItem currentProfile;
 
 
@@ -86,14 +88,22 @@ public class DrawerCreate extends AppCompatActivity{
                 .withAccountHeader(headerResult)
                 .addDrawerItems(
                         mainMenuItem,
+                        new DividerDrawerItem(),
+                        publicImagesItem,
                         new DividerDrawerItem()
                 )
                 .withSelectedItem(-1)
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        if(position==0){
+                        if(position==1){
                             Intent intent = new Intent(context, MainActivity.class);
+                            if(context.getClass().getName().equals(intent.getComponent().getClassName()))
+                                return true;
+                            activity.startActivity(intent);
+                        }
+                        if(position==3){
+                            Intent intent = new Intent(context, PublicImages.class);
                             if(context.getClass().getName().equals(intent.getComponent().getClassName()))
                                 return true;
                             activity.startActivity(intent);

@@ -36,6 +36,8 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -496,9 +498,12 @@ public class MainActivity extends AppCompatActivity {
                 mBuilder.setContentText("Upload complete, thank you!");
                 mNotifyManager.notify(notifyId, mBuilder.build()); //display notification
                 Toast.makeText(MainActivity.this,"Thank you for your creation! Check it out on the public page!",Toast.LENGTH_SHORT).show();
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference("images").child(mAuth.getCurrentUser().getUid());
+                ImageData imageData=new ImageData(uploadName,uploadCreationName,0,taskSnapshot.getDownloadUrl().toString());
+                myRef.child(myRef.push().getKey()).setValue(imageData);
             }
         });
-
     }
 
     public void clearImage(View v){

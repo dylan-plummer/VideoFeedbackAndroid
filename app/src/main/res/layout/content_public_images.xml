@@ -20,14 +20,14 @@
         app:srcCompat="@drawable/image"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/imageView"
+        android:id="@+id/current_image"
         android:scaleType="fitCenter" />
 
     <TextView
         android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageView"
+        android:layout_below="@+id/current_image"
         android:layout_centerHorizontal="true"
         android:id="@+id/title"
         android:textColor="?android:attr/textColorPrimaryInverse"
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/title"
         android:layout_centerHorizontal="true"
-        android:id="@+id/textView9"
+        android:id="@+id/author"
         android:textColor="?android:attr/textColorPrimaryInverse"
         android:padding="10dp" />
 
@@ -48,7 +48,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/star_empty"
-        android:layout_below="@+id/textView9"
+        android:layout_below="@+id/author"
         android:layout_centerHorizontal="true"
         android:id="@+id/image_rating"
         android:layout_alignParentBottom="true"
@@ -63,4 +63,29 @@
         android:id="@+id/num_ratings"
         android:textColor="?android:attr/textColorPrimaryInverse"
         android:textSize="10sp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/forward"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/imageView3"
+        android:layout_below="@+id/current_image"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="30dp"
+        android:paddingTop="30dp"
+        android:tint="#ffffff"
+        android:onClick="nextImage" />
+
+    <ImageView
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/back"
+        android:layout_below="@+id/current_image"
+        android:layout_alignParentStart="true"
+        android:id="@+id/imageView4"
+        android:layout_alignParentBottom="true"
+        android:paddingBottom="30dp"
+        android:paddingTop="30dp"
+        android:tint="#ffffff" />
 </RelativeLayout>
