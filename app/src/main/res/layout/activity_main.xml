@@ -141,7 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/center"
-                android:max="50"
+                android:max="200"
                 android:progress="0"
                 android:layout_below="@+id/textView4"
                 android:layout_alignParentStart="true"
@@ -193,6 +193,72 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/scale"
                 android:layout_alignBottom="@+id/scale"
+                android:gravity="center"
+                android:padding="10dp" />
+            <TextView
+                android:text="Rotation Center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView6"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/scale" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/rotate_center"
+                android:max="200"
+                android:progress="0"
+                android:layout_below="@+id/textView6"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/rotate_center_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rotate_center_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/rotate_center"
+                android:layout_alignBottom="@+id/rotate_center"
+                android:gravity="center"
+                android:padding="10dp" />
+            <TextView
+                android:text="Zoom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView7"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/rotate_center" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/mirror"
+                android:max="100"
+                android:progress="0"
+                android:layout_below="@+id/textView7"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/mirror_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/mirror_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/mirror"
+                android:layout_alignBottom="@+id/mirror"
                 android:gravity="center"
                 android:padding="10dp" />
 

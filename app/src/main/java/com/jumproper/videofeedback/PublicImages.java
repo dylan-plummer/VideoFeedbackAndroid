@@ -36,6 +36,7 @@ public class PublicImages extends AppCompatActivity {
     boolean rated=false;
     int index=0;
     private FirebaseAuth mAuth;
+    DownloadImageTask downloadImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +89,8 @@ public class PublicImages extends AppCompatActivity {
     }
     public void setData(ImageData data){
 
-        new DownloadImageTask(currentImage)
-                .execute(data.getDownload());
+        downloadImage=new DownloadImageTask(currentImage);
+        downloadImage.execute(data.getDownload());
         title.setText(data.getName());
         author.setText(data.getUser());
         votes.setText(""+data.getVotes());
@@ -99,17 +100,29 @@ public class PublicImages extends AppCompatActivity {
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    if ((boolean) (dataSnapshot.getValue()) == false) {
+                    if(dataSnapshot.getValue()!=null) {
+                        if ((boolean) (dataSnapshot.getValue()) == false) {
+                            rated=false;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                rate.setImageDrawable(getDrawable(R.drawable.star_empty));
+                            } else {
+                                rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
+                            }
+                        } else {
+                            rated=true;
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                rate.setImageDrawable(getDrawable(R.drawable.star_filled));
+                            } else {
+                                rate.setImageDrawable(getResources().getDrawable(R.drawable.star_filled));
+                            }
+                        }
+                    }
+                    else{
+                        rated=false;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                             rate.setImageDrawable(getDrawable(R.drawable.star_empty));
                         } else {
                             rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
-                        }
-                    } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                            rate.setImageDrawable(getDrawable(R.drawable.star_filled));
-                        } else {
-                            rate.setImageDrawable(getResources().getDrawable(R.drawable.star_filled));
                         }
                     }
                 }
@@ -151,19 +164,32 @@ public class PublicImages extends AppCompatActivity {
     }
     public void nextImage(View v){
         if(index+1<topImages.size()){
+            downloadImage.cancel(true);
             currentImage.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.VISIBLE);
             index++;
             setData(topImages.get(index));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                rate.setImageDrawable(getDrawable(R.drawable.star_empty));
+            } else {
+                rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
+            }
         }
 
     }
     public void previousImage(View v){
         if(index-1>-1){
+            downloadImage.cancel(true);
             currentImage.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.VISIBLE);
             index--;
             setData(topImages.get(index));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                rate.setImageDrawable(getDrawable(R.drawable.star_empty));
+            } else {
+                rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
+            }
+            rated=false;
         }
     }
     public void rateImage(View v){

@@ -51,12 +51,12 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
-    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput;
-    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount;
     Bitmap img,overlay,original;
     int j=0;
     int iter;
-    float rotate,offset,center,scale;
+    float rotate,offset,center,scale,rotateCenter,mirror;
     boolean indefinite=false;
     boolean running=false;
     boolean upload=false;
@@ -86,11 +86,17 @@ public class MainActivity extends AppCompatActivity {
         offsetCount=(TextView)findViewById(R.id.offset_count);
         centerCount=(TextView)findViewById(R.id.center_count);
         scaleCount=(TextView)findViewById(R.id.scale_count);
+        rotateCenterCount=(TextView)findViewById(R.id.rotate_center_count);
+        mirrorCount=(TextView)findViewById(R.id.mirror_count);
+
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
         offsetInput=(SeekBar)findViewById(R.id.offset);
         centerInput=(SeekBar)findViewById(R.id.center);
         scaleInput=(SeekBar)findViewById(R.id.scale);
+        rotateCenterInput=(SeekBar)findViewById(R.id.rotate_center);
+        mirrorInput=(SeekBar)findViewById(R.id.mirror);
+
         imgView=(ImageView)findViewById(R.id.image_view);
         openImage=(ImageView)findViewById(R.id.open_image);
         iterCount.setText(""+iterInput.getProgress());
@@ -98,10 +104,14 @@ public class MainActivity extends AppCompatActivity {
         offsetCount.setText(""+offsetInput.getProgress());
         rotateCount.setText(""+rotateInput.getProgress());
         scaleCount.setText("."+(100-scaleInput.getProgress()));
+        rotateCenterCount.setText(""+rotateCenterInput.getProgress());
+        mirrorCount.setText(""+mirrorInput.getProgress());
         iter=iterInput.getProgress();
         rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
         offset=2+offsetInput.getProgress();
-        center=2+centerInput.getProgress();
+        center=0;
+        rotateCenter=0;
+        mirror=0;
         scale=(float)((100-scaleInput.getProgress())/100.0);
         img=((BitmapDrawable) imgView.getDrawable()).getBitmap();
         original=img.copy(Bitmap.Config.ARGB_8888,true);
@@ -164,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         centerInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                center=(float)(2+i);
+                center=(float)(10*i);
                 centerCount.setText(""+i);
             }
 
@@ -183,6 +193,40 @@ public class MainActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 scale=(float)((100-i)/100.0);
                 scaleCount.setText("."+(100-i));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        rotateCenterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                rotateCenter=(float)(10*i);
+                rotateCenterCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        mirrorInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                mirror=i;
+                mirrorCount.setText(""+i);
             }
 
             @Override
@@ -220,17 +264,17 @@ public class MainActivity extends AppCompatActivity {
         Canvas canvas=new Canvas(overlay);
         Paint p=new Paint();
         Matrix matrix = new Matrix();
-        matrix.setRotate(rotate*j,w/2, h/2);
-        matrix.postScale(scale,scale,w/center,w/center);
+        matrix.setRotate(rotate*j,w/2+rotateCenter, h/2+rotateCenter);
+        matrix.postScale(scale,scale,w/2+center,h/2+center);
         matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();
-        flipx.setScale(-1f,1f);
-        flipx.postTranslate(w,0);
+        flipx.setScale(-1-(mirror/w/2),1f);
+        flipx.postTranslate(w+mirror/w/2,0);
 
         Matrix flipy = new Matrix();
-        flipy.setScale(1f,-1);
-        flipy.postTranslate(0,h);
+        flipy.setScale(1,-1-(mirror/h/2));
+        flipy.postTranslate(0,h+mirror/h/2);
 
         canvas.drawBitmap(img, matrix, p);
         canvas.drawBitmap(overlay,flipx,p);
@@ -455,7 +499,7 @@ public class MainActivity extends AppCompatActivity {
     public void uploadImage(){
         Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 30, baos);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, baos);
         byte[] data = baos.toByteArray();
         StorageReference uploadRef=storageRef.child(mAuth.getCurrentUser().getUid()).child("feedback_"+System.currentTimeMillis());
         Log.e("Upload","Path "+uploadRef.getPath());
