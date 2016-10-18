@@ -247,9 +247,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        if(mAuth.getCurrentUser()!=null&&upload) {
-            upload=false;
-            uploadImage();
+        if(mAuth.getCurrentUser()!=null) {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            DrawerCreate drawer=new DrawerCreate();
+            drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
+            if(upload) {
+                upload = false;
+                uploadImage();
+            }
+
         }
     }
     public void process(ImageView v){

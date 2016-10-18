@@ -10,8 +10,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,20 +26,24 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 public class PublicImages extends AppCompatActivity {
     private ImageView currentImage,rate;
-    private TextView title,author,votes;
+    private TextView title,author,votes,date;
     private ProgressBar loading;
+    private Spinner spinner;
     public ImageData data;
     public ArrayList<ImageData> topImages=new ArrayList<>();
     boolean rated=false;
     int index=0;
     private FirebaseAuth mAuth;
     DownloadImageTask downloadImage;
+    private static boolean offline=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,14 +58,53 @@ public class PublicImages extends AppCompatActivity {
         title=(TextView) findViewById(R.id.title);
         author=(TextView)findViewById(R.id.author);
         votes=(TextView)findViewById(R.id.num_ratings);
+        date=(TextView)findViewById(R.id.date);
         loading=(ProgressBar)findViewById(R.id.loading_image);
+        spinner=(Spinner)findViewById(R.id.spinner);
 
-        fillImageList();
 
+        ArrayList<String>sortBy=new ArrayList<>();
+        sortBy.add("Top");
+        sortBy.add("Popular");
+        sortBy.add("New");
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_item, sortBy);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spinner.setPopupBackgroundResource(R.color.background);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                fillImageList(adapterView.getItemAtPosition(i).toString());
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        DrawerCreate drawer=new DrawerCreate();
+        drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mAuth.getCurrentUser() != null) {
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            DrawerCreate drawer = new DrawerCreate();
+            drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
+        }
     }
 
-    public void fillImageList() {
+    public void fillImageList(final String sort) {
+        topImages.clear();
         FirebaseDatabase fb = FirebaseDatabase.getInstance();
+        if(offline) {
+            fb.setPersistenceEnabled(true);
+            offline=false;
+        }
         DatabaseReference myRef = fb.getReference("images");
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -69,7 +115,18 @@ public class PublicImages extends AppCompatActivity {
                             topImages.add(images.getValue(id));
                     }
                 }
-                sortByTop();
+                if(sort.equals("Top")) {
+                    index=0;
+                    sortByTop();
+                }
+                else if(sort.equals("Popular")){
+                    index=0;
+                    sortByPopular();
+                }
+                else if(sort.equals("New")){
+                    index=0;
+                    sortByNew();
+                }
                 setData(topImages.get(index));
             }
             @Override
@@ -79,13 +136,36 @@ public class PublicImages extends AppCompatActivity {
         });
     }
     public void sortByTop(){
-        Log.e("Image List",topImages.toString());
         Collections.sort(topImages, new Comparator<ImageData>() {
             @Override public int compare(ImageData p1, ImageData p2) {
                 return p2.getVotes() - p1.getVotes(); // descending
             }
         });
-        Log.e("Image List","Sorted "+topImages.toString());
+    }
+    public void sortByPopular(){
+        Collections.sort(topImages, new Comparator<ImageData>() {
+            @Override public int compare(ImageData p1, ImageData p2) {
+                return (int)(p2.getDate() - p1.getDate()); // descending
+            }
+        });
+        long newest=topImages.get(0).getDate();
+        for(int j=0;j<topImages.size();j++){
+            if(newest-topImages.get(j).getDate()>86400000*7){
+                topImages.remove(j);
+            }
+        }
+        Collections.sort(topImages, new Comparator<ImageData>() {
+            @Override public int compare(ImageData p1, ImageData p2) {
+                return p2.getVotes() - p1.getVotes(); // descending
+            }
+        });
+    }
+    public void sortByNew(){
+        Collections.sort(topImages, new Comparator<ImageData>() {
+            @Override public int compare(ImageData p1, ImageData p2) {
+                return (int)(p2.getDate() - p1.getDate()); // descending
+            }
+        });
     }
     public void setData(ImageData data){
 
@@ -94,6 +174,7 @@ public class PublicImages extends AppCompatActivity {
         title.setText(data.getName());
         author.setText(data.getUser());
         votes.setText(""+data.getVotes());
+        date.setText(formatEpoch(data.getDate()));
         if(mAuth.getCurrentUser()!=null) {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("votes").child(mAuth.getCurrentUser().getUid()).child(data.getKey());
@@ -133,6 +214,10 @@ public class PublicImages extends AppCompatActivity {
                 }
             });
         }
+    }
+    public String formatEpoch(long time){
+        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+        return sdf.format(new Date(time));
     }
 
     private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {

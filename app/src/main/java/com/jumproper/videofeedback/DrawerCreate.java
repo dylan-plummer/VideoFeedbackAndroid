@@ -33,6 +33,7 @@ public class DrawerCreate extends AppCompatActivity{
         new DrawerBuilder().withActivity(activity).build();
         PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Video Feedback");
         PrimaryDrawerItem publicImagesItem=new PrimaryDrawerItem().withName("Public Gallery");
+        final PrimaryDrawerItem signIn=new PrimaryDrawerItem().withName("Sign In");
         final ProfileDrawerItem currentProfile;
 
 
@@ -41,6 +42,7 @@ public class DrawerCreate extends AppCompatActivity{
                     .withName(mAuth.getCurrentUser().getDisplayName())
                     .withEnabled(true)
                     .withEmail(mAuth.getCurrentUser().getEmail());
+            signIn.withName("Sign Out");
         }
         else{
             currentProfile=new ProfileDrawerItem()
@@ -82,7 +84,7 @@ public class DrawerCreate extends AppCompatActivity{
                 .build();
 
 
-        Drawer result = new DrawerBuilder()
+        final Drawer result = new DrawerBuilder()
                 .withActivity(activity)
                 .withToolbar(toolbar)
                 .withAccountHeader(headerResult)
@@ -90,6 +92,8 @@ public class DrawerCreate extends AppCompatActivity{
                         mainMenuItem,
                         new DividerDrawerItem(),
                         publicImagesItem,
+                        new DividerDrawerItem(),
+                        signIn,
                         new DividerDrawerItem()
                 )
                 .withSelectedItem(-1)
@@ -108,6 +112,18 @@ public class DrawerCreate extends AppCompatActivity{
                                 return true;
                             activity.startActivity(intent);
                         }
+                        if(position==5){
+                            if(signIn.getName().toString().equals("Sign In")){
+                                Intent intent = new Intent(context, SignIn.class);
+                                activity.startActivity(intent);
+                            }
+                            else{
+                                mAuth.signOut();
+                                Intent intent = new Intent(context, MainActivity.class);
+                                finish();
+                                activity.startActivity(intent);
+                            }
+                        }
 
                         return true;
                     }
@@ -116,12 +132,14 @@ public class DrawerCreate extends AppCompatActivity{
                     @Override
                     public void onDrawerOpened(View drawerView) {
                         if((mAuth.getCurrentUser()!=null)&&(currentProfile.getName().toString().equals("Sign in"))){
+                            signIn.withName("Sign Out");
                             headerResult.setActiveProfile(new ProfileDrawerItem()
                                     .withEmail(mAuth.getCurrentUser().getEmail())
                                     .withName(mAuth.getCurrentUser().getDisplayName())
                                     .withIcon(mAuth.getCurrentUser().getPhotoUrl()));
                         }
                         else if((mAuth.getCurrentUser()==null)&&!(currentProfile.getName().toString().equals("Sign in"))){
+                            signIn.withName("Sign In");
                             headerResult.setActiveProfile(new ProfileDrawerItem()
                                     .withName("Sign in")
                                     .withEmail("Tap the icon to sign in")
