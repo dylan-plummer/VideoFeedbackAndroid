@@ -118,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                iterCount.setText(""+i);
+                iterCount.setText(""+(i+1));
                 indefinite=false;
                 if(i==100){
                     indefinite=true;
                     iterCount.setText("∞");
                 }
-                iter=i;
+                iter=i+1;
             }
 
             @Override
@@ -225,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
         mirrorInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                mirror=i;
+                mirror=i/10;
                 mirrorCount.setText(""+i);
             }
 
@@ -276,16 +276,22 @@ public class MainActivity extends AppCompatActivity {
         matrix.postTranslate(w/offset,h/offset);
 
         Matrix flipx = new Matrix();
-        flipx.setScale(-1-(mirror/w/2),1f);
-        flipx.postTranslate(w+mirror/w/2,0);
+        flipx.setScale(-1,1);//-(mirror/w/2),1f);
+        flipx.postTranslate(w,0);//+mirror/w/2,0);
 
         Matrix flipy = new Matrix();
-        flipy.setScale(1,-1-(mirror/h/2));
-        flipy.postTranslate(0,h+mirror/h/2);
+        flipy.setScale(1,-1);//-(mirror/h/2));
+        flipy.postTranslate(0,h);//+mirror/h/2);
 
+        Matrix zoom = new Matrix();
+        zoom.setRotate(mirror/(w*h)*j,w/2,h/2);
+        zoom.postScale(1+mirror/w,1+mirror/h,w/2,h/2);
+
+        canvas.drawBitmap(overlay,zoom,p);
         canvas.drawBitmap(img, matrix, p);
         canvas.drawBitmap(overlay,flipx,p);
         canvas.drawBitmap(overlay,flipy,p);
+
         j++;
     }
 
@@ -453,13 +459,27 @@ public class MainActivity extends AppCompatActivity {
     }
     public void askToUpload(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this); //new alert dialog
-        builder.setTitle("Upload"); //dialog title
+        TextView title=new TextView(MainActivity.this);
+        title.setText("Upload your creation!");
+        title.setTextSize(getResources().getDimension(R.dimen.textsize));
+        title.setPadding(50,50,50,50);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            title.setTextColor(getColor(R.color.white));
+        }
+        else{
+            title.setTextColor(getResources().getColor(R.color.white));
+        }
+        //builder.setCustomTitle(title); //dialog title
+
         LayoutInflater inflater = (LayoutInflater)MainActivity.this.getSystemService (Context.LAYOUT_INFLATER_SERVICE); //needed to display custom layout
         final View textBoxes=inflater.inflate(R.layout.upload_dialog_layout,null); //custom layout file now a view object
         builder.setView(textBoxes); //set view to custom layout
         final EditText name = (EditText)textBoxes.findViewById(R.id.upload_name);
         final EditText creationName = (EditText)textBoxes.findViewById(R.id.upload_creation_name);
         final CheckBox anon = (CheckBox)textBoxes.findViewById(R.id.anonymous_upload);
+        if(mAuth.getCurrentUser()!=null){
+            name.setText(mAuth.getCurrentUser().getDisplayName());
+        }
         anon.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -500,8 +520,7 @@ public class MainActivity extends AppCompatActivity {
                 dialog.cancel();
             }
         });
-
-        builder.show();
+        builder.show().getWindow().setBackgroundDrawableResource(R.color.background);
     }
     public void uploadImage(){
         Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();

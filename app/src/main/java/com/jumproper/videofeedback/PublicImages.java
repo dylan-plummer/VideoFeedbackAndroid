@@ -43,7 +43,6 @@ public class PublicImages extends AppCompatActivity {
     int index=0;
     private FirebaseAuth mAuth;
     DownloadImageTask downloadImage;
-    private static boolean offline=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +100,6 @@ public class PublicImages extends AppCompatActivity {
     public void fillImageList(final String sort) {
         topImages.clear();
         FirebaseDatabase fb = FirebaseDatabase.getInstance();
-        if(offline) {
-            fb.setPersistenceEnabled(true);
-            offline=false;
-        }
         DatabaseReference myRef = fb.getReference("images");
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
