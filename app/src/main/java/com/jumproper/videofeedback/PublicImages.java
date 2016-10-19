@@ -56,6 +56,7 @@ public class PublicImages extends AppCompatActivity {
         setContentView(R.layout.activity_public_images);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle("Public Gallery");
         mAuth=FirebaseAuth.getInstance();
 
         currentImage=(ImageView)findViewById(R.id.current_image);
@@ -95,9 +96,9 @@ public class PublicImages extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
-        if(MainActivity.ads) {
-            displayAd();
-        }
+
+        displayAd();
+
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/2116452261");
 
@@ -108,7 +109,9 @@ public class PublicImages extends AppCompatActivity {
                 nextImage(currentImage);
             }
         });
-        requestNewInterstitial();
+        if(MainActivity.ads) {
+            requestNewInterstitial();
+        }
     }
     @Override
     public void onResume() {
@@ -127,10 +130,15 @@ public class PublicImages extends AppCompatActivity {
     public void displayAd(){
         MobileAds.initialize(getApplicationContext(), "ca-app-pub-2959515976305980~5488721062");
         AdView mAdView = (AdView) findViewById(R.id.adView2);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
-                .build();
-        mAdView.loadAd(adRequest);
+        if(MainActivity.ads) {
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
+                    .build();
+            mAdView.loadAd(adRequest);
+        }
+        else{
+            mAdView.setVisibility(View.GONE);
+        }
     }
 
     public void displayInterstitial(){

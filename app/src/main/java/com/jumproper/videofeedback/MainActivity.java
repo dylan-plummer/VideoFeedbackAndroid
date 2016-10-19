@@ -240,18 +240,22 @@ public class MainActivity extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
-        if(ads) {
-            displayAd();
-        }
+        displayAd();
     }
 
     public void displayAd(){
+
         MobileAds.initialize(getApplicationContext(), "ca-app-pub-2959515976305980~5488721062");
         AdView mAdView = (AdView) findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
-                .build();
-        mAdView.loadAd(adRequest);
+        if(ads) {
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
+                    .build();
+            mAdView.loadAd(adRequest);
+        }
+        else{
+            mAdView.setVisibility(View.GONE);
+        }
     }
     @Override
     public void onResume(){
