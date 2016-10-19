@@ -5,7 +5,7 @@ android {
         config {
             keyAlias 'VideoFeedbackKey'
             keyPassword 'dplummer36'
-            storeFile file('C:/Users/jumpr/VideoFeedbackKey.jks')
+            storeFile file('C:/Users/jumpr_000/VideoFeedbackKey.jks')
             storePassword 'dplummer36'
         }
     }
@@ -44,6 +44,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:9.6.1'
     compile 'com.google.firebase:firebase-storage:9.6.1'
     compile 'com.google.firebase:firebase-database:9.6.1'
+    compile 'com.google.firebase:firebase-ads:9.6.1'
     compile 'com.google.android.gms:play-services-auth:9.6.1'
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'

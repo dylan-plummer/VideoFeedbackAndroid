@@ -3,6 +3,8 @@
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
     <string name="google_sign_in_auth_id">846970540091-3t4jak14ts61tr6mtatujvl1i85no1sj.apps.googleusercontent.com</string>
     <string name="title_activity_public_images">PublicImages</string>
+    <string name="banner_ad_unit_id">ca-app-pub-2959515976305980/6965454266</string>
+    <string name="public_gallery_banner_ad_unit_id">ca-app-pub-2959515976305980/2116452261</string>
     <string-array name="sort_by">
         <item>Top</item>
         <item>New</item>

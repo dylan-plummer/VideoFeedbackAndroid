@@ -17,6 +17,11 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -43,6 +48,7 @@ public class PublicImages extends AppCompatActivity {
     int index=0;
     private FirebaseAuth mAuth;
     DownloadImageTask downloadImage;
+    InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +79,10 @@ public class PublicImages extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if(MainActivity.ads && mInterstitialAd.isLoaded()) {
+                    displayInterstitial();
+                }
+                MainActivity.ads=!MainActivity.ads;
                 fillImageList(adapterView.getItemAtPosition(i).toString());
 
             }
@@ -85,6 +95,20 @@ public class PublicImages extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
+        if(MainActivity.ads) {
+            displayAd();
+        }
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/2116452261");
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                requestNewInterstitial();
+                nextImage(currentImage);
+            }
+        });
+        requestNewInterstitial();
     }
     @Override
     public void onResume() {
@@ -95,6 +119,29 @@ public class PublicImages extends AppCompatActivity {
             DrawerCreate drawer = new DrawerCreate();
             drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
         }
+        if(MainActivity.ads) {
+            displayAd();
+        }
+    }
+
+    public void displayAd(){
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2959515976305980~5488721062");
+        AdView mAdView = (AdView) findViewById(R.id.adView2);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
+                .build();
+        mAdView.loadAd(adRequest);
+    }
+
+    public void displayInterstitial(){
+        mInterstitialAd.show();
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
+                .build();
+        mInterstitialAd.loadAd(adRequest);
     }
 
     public void fillImageList(final String sort) {
@@ -145,7 +192,10 @@ public class PublicImages extends AppCompatActivity {
         });
         long newest=topImages.get(0).getDate();
         for(int j=0;j<topImages.size();j++){
-            if(newest-topImages.get(j).getDate()>86400000*7){
+            if(topImages.size()<11){
+                break;
+            }
+            if(newest-topImages.get(j).getDate()>86400000/2){
                 topImages.remove(j);
             }
         }

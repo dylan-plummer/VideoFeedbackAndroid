@@ -33,6 +33,9 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -70,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     StorageReference storageRef;
     private long fileSize;
     private int notifyId=1;
+    public static boolean ads=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -242,7 +246,18 @@ public class MainActivity extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
+        if(ads) {
+            displayAd();
+        }
+    }
 
+    public void displayAd(){
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2959515976305980~5488721062");
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
+                .build();
+        mAdView.loadAd(adRequest);
     }
     @Override
     public void onResume(){
@@ -256,7 +271,9 @@ public class MainActivity extends AppCompatActivity {
                 upload = false;
                 uploadImage();
             }
-
+        }
+        if(ads) {
+            displayAd();
         }
     }
     public void process(ImageView v){
@@ -567,7 +584,7 @@ public class MainActivity extends AppCompatActivity {
                 mBuilder.setProgress(0,0,false);
                 mBuilder.setContentText("Upload complete, thank you!");
                 mNotifyManager.notify(notifyId, mBuilder.build()); //display notification
-                Toast.makeText(MainActivity.this,"Thank you for your creation! Check it out on the public page!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this,"Thank you for your creation! Check it out on the 'new' section of the public gallery!",Toast.LENGTH_SHORT).show();
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference("images").child(mAuth.getCurrentUser().getUid());
                 String key=myRef.push().getKey();
