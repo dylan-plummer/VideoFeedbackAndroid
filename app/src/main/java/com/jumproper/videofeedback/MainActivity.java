@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     int j=0;
     int iter;
     float rotate,offset,center,scale,rotateCenter,mirror;
-    boolean indefinite=false;
     boolean running=false;
     boolean upload=false;
     final int REQUEST_SAVE_IMAGE=36;
@@ -123,11 +122,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 iterCount.setText(""+(i+1));
-                indefinite=false;
-                if(i==100){
-                    indefinite=true;
-                    iterCount.setText("∞");
-                }
                 iter=i+1;
             }
 
@@ -314,7 +308,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void feedback(View v){
         if(running){
-            indefinite=false;
             running=false;
             return;
         }
@@ -323,26 +316,13 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 running=true;
                 imgView = (ImageView) findViewById(R.id.image_view);
-                if(indefinite&&running){
-                    while(indefinite) {
+                for (int i = 0; i < iter; i++) {
+                    if(running) {
                         process(imgView);
                         imgView.post(new Runnable() {
-                            public void run() {
-                                imgView.setImageBitmap(overlay);
-                            }
-                        });
-                    }
-                }
-                else {
-                    for (int i = 0; i < iter; i++) {
-                        if(running) {
-                            process(imgView);
-                            imgView.post(new Runnable() {
-                                public void run() {
-                                    imgView.setImageBitmap(overlay);
+                                public void run() {imgView.setImageBitmap(overlay);
                                 }
                             });
-                        }
                     }
                 }
                 running=false;
@@ -353,7 +333,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void refresh(View v){
         if(running) {
-            indefinite=false;
             running = false;
         }
         imgView.setImageBitmap(original);
@@ -362,7 +341,6 @@ public class MainActivity extends AppCompatActivity {
     }
     public void saveImage(View v){
         running=false;
-        indefinite=false;
         getPermissionSave();
     }
     public void getPermissionSave(){
