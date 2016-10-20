@@ -138,9 +138,11 @@ public class SignIn extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d("Auth", "signInWithCredential:onComplete:" + task.isSuccessful());
-                        if(task.isComplete()){
-                            Toast.makeText(SignIn.this, "Signed in as "+mAuth.getCurrentUser().getEmail(),
-                                    Toast.LENGTH_SHORT).show();
+                        if(task.isSuccessful()){
+                            if(mAuth.getCurrentUser()!=null) {
+                                Toast.makeText(SignIn.this, "Signed in as " + mAuth.getCurrentUser().getEmail(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
                             finish();
                         }
                         // If sign in fails, display a message to the user. If sign in succeeds
