@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
     private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput;
     private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount;
+    private CheckBox invertRotation;
     Bitmap img,overlay,original;
     int j=0;
     int iter,invert;
@@ -103,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
         rotateCenterInput=(SeekBar)findViewById(R.id.rotate_center);
         mirrorInput=(SeekBar)findViewById(R.id.mirror);
         delayInput=(SeekBar)findViewById(R.id.delay);
+
+        invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
 
         imgView=(ImageView)findViewById(R.id.image_view);
         openImage=(ImageView)findViewById(R.id.open_image);
@@ -260,6 +263,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
 
+            }
+        });
+
+        invertRotation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    invert=-1;
+                }
+                else{
+                    invert=1;
+                }
             }
         });
 

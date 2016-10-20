@@ -71,7 +71,8 @@
                 android:id="@+id/textView2"
                 android:textColor="?android:attr/textColorPrimaryInverse"
                 android:layout_marginTop="10dp"
-                android:layout_below="@+id/iterations" />
+                android:layout_below="@+id/iterations"
+                android:padding="5dp" />
 
             <SeekBar
                 android:layout_width="match_parent"
@@ -298,6 +299,17 @@
                 android:layout_alignBottom="@+id/mirror"
                 android:gravity="center"
                 android:padding="10dp" />
+
+            <CheckBox
+                android:text="Reverse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/invert_rotation"
+                ads:buttonTint="#ffffff"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignTop="@+id/textView2"
+                android:layout_above="@+id/rotation" />
 
         </RelativeLayout>
     </ScrollView>
