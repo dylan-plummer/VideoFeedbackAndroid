@@ -61,7 +61,7 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/iterations"
                 android:layout_alignBottom="@+id/iterations"
-                android:gravity="center"
+                android:gravity="right"
                 android:padding="10dp" />
 
             <TextView
@@ -95,7 +95,7 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/rotation"
                 android:layout_alignBottom="@+id/rotation"
-                android:gravity="center"
+                android:gravity="right"
                 android:padding="10dp" />
             <TextView
                 android:text="Offset"
@@ -128,7 +128,7 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/offset"
                 android:layout_alignBottom="@+id/offset"
-                android:gravity="center"
+                android:gravity="right"
                 android:padding="10dp" />
 
             <TextView
@@ -162,7 +162,7 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/center"
                 android:layout_alignBottom="@+id/center"
-                android:gravity="center"
+                android:gravity="right"
                 android:padding="10dp" />
 
             <TextView
@@ -196,7 +196,7 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/scale"
                 android:layout_alignBottom="@+id/scale"
-                android:gravity="center"
+                android:gravity="right"
                 android:padding="10dp" />
             <TextView
                 android:text="Rotation Center"
@@ -229,8 +229,42 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignTop="@+id/rotate_center"
                 android:layout_alignBottom="@+id/rotate_center"
-                android:gravity="center"
+                android:gravity="right"
                 android:padding="10dp" />
+            <TextView
+                android:text="Delay (Milliseconds)"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView8"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/mirror" />
+
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/delay"
+                android:max="500"
+                android:progress="0"
+                android:layout_below="@+id/textView8"
+                android:layout_alignParentStart="true"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_toStartOf="@+id/delay_count" />
+
+            <TextView
+                android:text="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/delay_count"
+                android:layout_alignParentEnd="true"
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_alignParentBottom="false"
+                android:layout_alignTop="@+id/delay"
+                android:layout_alignBottom="@+id/delay"
+                android:gravity="right"
+                android:padding="10dp" />
+
             <TextView
                 android:text="Zoom"
                 android:layout_width="wrap_content"

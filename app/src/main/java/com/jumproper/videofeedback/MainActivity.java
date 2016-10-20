@@ -54,12 +54,13 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
-    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput;
-    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount;
     Bitmap img,overlay,original;
     int j=0;
-    int iter;
+    int iter,invert;
     float rotate,offset,center,scale,rotateCenter,mirror;
+    long delay;
     boolean running=false;
     boolean upload=false;
     final int REQUEST_SAVE_IMAGE=36;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private long fileSize;
     private int notifyId=1;
     public static boolean ads=true;
+    Thread drawFrame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         scaleCount=(TextView)findViewById(R.id.scale_count);
         rotateCenterCount=(TextView)findViewById(R.id.rotate_center_count);
         mirrorCount=(TextView)findViewById(R.id.mirror_count);
+        delayCount=(TextView)findViewById(R.id.delay_count);
 
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
@@ -99,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         scaleInput=(SeekBar)findViewById(R.id.scale);
         rotateCenterInput=(SeekBar)findViewById(R.id.rotate_center);
         mirrorInput=(SeekBar)findViewById(R.id.mirror);
+        delayInput=(SeekBar)findViewById(R.id.delay);
 
         imgView=(ImageView)findViewById(R.id.image_view);
         openImage=(ImageView)findViewById(R.id.open_image);
@@ -109,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
         scaleCount.setText("."+(100-scaleInput.getProgress()));
         rotateCenterCount.setText(""+rotateCenterInput.getProgress());
         mirrorCount.setText(""+mirrorInput.getProgress());
+        delayCount.setText(""+delayInput.getProgress());
+
         iter=iterInput.getProgress();
         rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
         offset=2+offsetInput.getProgress();
@@ -116,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
         rotateCenter=0;
         mirror=0;
         scale=(float)((100-scaleInput.getProgress())/100.0);
+        delay=0;
+        invert=1;
         img=((BitmapDrawable) imgView.getDrawable()).getBitmap();
         original=img.copy(Bitmap.Config.ARGB_8888,true);
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -237,6 +245,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        delayInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                delay=i;
+                delayCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
@@ -286,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         Canvas canvas=new Canvas(overlay);
         Paint p=new Paint();
         Matrix matrix = new Matrix();
-        matrix.setRotate(rotate*j,w/2+rotateCenter, h/2+rotateCenter);
+        matrix.setRotate((invert)*rotate*j,w/2+rotateCenter, h/2+rotateCenter);
         matrix.postScale(scale,scale,w/2+center,h/2+center);
         matrix.postTranslate(w/offset,h/offset);
 
@@ -316,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        new Thread(new Runnable() {
+        drawFrame=new Thread(new Runnable() {
             public void run() {
                 running=true;
                 imgView = (ImageView) findViewById(R.id.image_view);
@@ -328,11 +353,19 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             });
                     }
+                    if(delay>0) {
+                        try {
+                            drawFrame.sleep(delay);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 running=false;
             }
 
-        }).start();
+        });
+        drawFrame.start();
         running=false;
     }
     public void refresh(View v){
