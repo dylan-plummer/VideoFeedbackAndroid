@@ -33,8 +33,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -76,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
     private int notifyId=1;
     public static boolean ads=true;
     Thread drawFrame;
+    InterstitialAd mInterstitialAd;
+    boolean adOnSave=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,6 +285,11 @@ public class MainActivity extends AppCompatActivity {
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
         displayAd();
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/1606591469");
+        if(ads) {
+            requestNewInterstitial();
+        }
     }
 
     public void displayAd(){
@@ -296,6 +305,16 @@ public class MainActivity extends AppCompatActivity {
         else{
             mAdView.setVisibility(View.GONE);
         }
+    }
+    public void displayInterstitial(){
+        mInterstitialAd.show();
+    }
+
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
+                .build();
+        mInterstitialAd.loadAd(adRequest);
     }
     @Override
     public void onResume(){
@@ -558,6 +577,10 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     uploadImage();
                 }
+                if(adOnSave) {
+                    displayInterstitial();
+                }
+                adOnSave=!adOnSave;
 
             }
         });
@@ -565,6 +588,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                if(adOnSave) {
+                    displayInterstitial();
+                }
+                adOnSave=!adOnSave;
             }
         });
         builder.show().getWindow().setBackgroundDrawableResource(R.color.background);

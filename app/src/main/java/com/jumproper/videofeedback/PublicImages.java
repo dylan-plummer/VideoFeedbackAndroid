@@ -49,6 +49,7 @@ public class PublicImages extends AppCompatActivity {
     private FirebaseAuth mAuth;
     DownloadImageTask downloadImage;
     InterstitialAd mInterstitialAd;
+    int adCOunt=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +81,11 @@ public class PublicImages extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(MainActivity.ads && mInterstitialAd.isLoaded()) {
+                adCOunt++;
+                if(MainActivity.ads && mInterstitialAd.isLoaded() && adCOunt==3) {
                     displayInterstitial();
+                    adCOunt=0;
                 }
-                MainActivity.ads=!MainActivity.ads;
                 fillImageList(adapterView.getItemAtPosition(i).toString());
 
             }
