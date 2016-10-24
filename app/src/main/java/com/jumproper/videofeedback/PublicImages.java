@@ -74,6 +74,9 @@ public class PublicImages extends AppCompatActivity {
         sortBy.add("Top");
         sortBy.add("Popular");
         sortBy.add("New");
+        if(mAuth.getCurrentUser()!=null){
+            sortBy.add("My Images");
+        }
         final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_item, sortBy);
         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinner.setPopupBackgroundResource(R.color.background);
@@ -179,6 +182,10 @@ public class PublicImages extends AppCompatActivity {
                     index=0;
                     sortByNew();
                 }
+                else if(sort.equals("My Images")){
+                    index=0;
+                    sortByMine();
+                }
                 setData(topImages.get(index));
             }
             @Override
@@ -221,6 +228,20 @@ public class PublicImages extends AppCompatActivity {
                 return (int)(p2.getDate() - p1.getDate()); // descending
             }
         });
+    }
+    public void sortByMine(){
+        if(mAuth.getCurrentUser()!=null) {
+            for (int j = 0; j < topImages.size(); j++) {
+                if (topImages.get(j).getuId() != mAuth.getCurrentUser().getUid()){
+                    topImages.remove(j);
+                }
+            }
+            Collections.sort(topImages, new Comparator<ImageData>() {
+                @Override public int compare(ImageData p1, ImageData p2) {
+                    return p2.getVotes() - p1.getVotes(); // descending
+                }
+            });
+        }
     }
     public void setData(ImageData data){
 
