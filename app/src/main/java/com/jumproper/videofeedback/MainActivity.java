@@ -53,6 +53,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
@@ -584,9 +585,7 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     uploadImage();
                 }
-                if(adOnSave) {
-                    displayInterstitial();
-                }
+                askToShare();
                 adOnSave=!adOnSave;
 
             }
@@ -595,13 +594,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
-                if(adOnSave) {
-                    displayInterstitial();
-                }
+                askToShare();
+
                 adOnSave=!adOnSave;
             }
         });
         builder.show().getWindow().setBackgroundDrawableResource(R.color.background);
+    }
+    public void askToShare(){
+        Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, baos);
+        byte[] data = baos.toByteArray();
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, data);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback");
+        shareIntent.setType("image/jpeg");
+        startActivity(Intent.createChooser(shareIntent, "Share your creation!"));
+        if(adOnSave) {
+            displayInterstitial();
+        }
     }
     public void uploadImage(){
         Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();
