@@ -80,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
     Thread drawFrame;
     InterstitialAd mInterstitialAd;
     boolean adOnSave=true;
+    boolean isDefault=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -370,11 +371,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void feedback(View v){
+
         if(running){
             running=false;
             return;
         }
-
+        isDefault=false;
         drawFrame=new Thread(new Runnable() {
             public void run() {
                 running=true;
@@ -406,11 +408,16 @@ public class MainActivity extends AppCompatActivity {
         if(running) {
             running = false;
         }
+        isDefault=true;
         imgView.setImageBitmap(original);
         j=0;
 
     }
     public void saveImage(View v){
+        if(isDefault){
+            Toast.makeText(MainActivity.this,"You must manipulate the image first!",Toast.LENGTH_SHORT).show();
+            return;
+        }
         running=false;
         getPermissionSave();
     }
@@ -676,6 +683,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     public void openImage(View v){
+        isDefault=true;
         getPermissionOpen();
     }
     private void dispatchVideoFromGalleryIntent(){
