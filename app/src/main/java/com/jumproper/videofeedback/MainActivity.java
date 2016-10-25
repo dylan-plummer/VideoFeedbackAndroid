@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean ads=true;
     Thread drawFrame;
     InterstitialAd mInterstitialAd;
-    boolean adOnSave=true;
+    boolean adOnSave=false;
     boolean isDefault=true;
 
     @Override
@@ -319,8 +320,16 @@ public class MainActivity extends AppCompatActivity {
         mInterstitialAd.loadAd(adRequest);
     }
     @Override
+    public void onPause(){
+        super.onPause();
+        adOnSave=!adOnSave;
+    }
+    @Override
     public void onResume(){
         super.onResume();
+        if(adOnSave) {
+            displayInterstitial();
+        }
         if(mAuth.getCurrentUser()!=null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -586,7 +595,6 @@ public class MainActivity extends AppCompatActivity {
                     uploadImage();
                 }
                 askToShare();
-                adOnSave=!adOnSave;
 
             }
         });
@@ -595,8 +603,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
                 askToShare();
-
-                adOnSave=!adOnSave;
             }
         });
         builder.show().getWindow().setBackgroundDrawableResource(R.color.background);
@@ -609,12 +615,10 @@ public class MainActivity extends AppCompatActivity {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, data);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback");
         shareIntent.setType("image/jpeg");
-        startActivity(Intent.createChooser(shareIntent, "Share your creation!"));
-        if(adOnSave) {
-            displayInterstitial();
-        }
+        Intent choose=Intent.createChooser(shareIntent,"Share your creation!");
+        startActivity(choose);
     }
     public void uploadImage(){
         Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();
