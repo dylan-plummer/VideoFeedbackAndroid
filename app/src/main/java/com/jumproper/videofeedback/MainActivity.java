@@ -608,14 +608,14 @@ public class MainActivity extends AppCompatActivity {
         builder.show().getWindow().setBackgroundDrawableResource(R.color.background);
     }
     public void askToShare(){
-        Bitmap bitmap = ((BitmapDrawable) imgView.getDrawable()).getBitmap();
+        Bitmap bitmap = overlay;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 25, baos);
         byte[] data = baos.toByteArray();
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, data);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback");
+        shareIntent.putExtra(Intent.EXTRA_TITLE, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback");
         shareIntent.setType("image/jpeg");
         Intent choose=Intent.createChooser(shareIntent,"Share your creation!");
         startActivity(choose);

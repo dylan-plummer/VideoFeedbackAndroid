@@ -238,7 +238,7 @@ public class PublicImages extends AppCompatActivity {
             }
             Collections.sort(topImages, new Comparator<ImageData>() {
                 @Override public int compare(ImageData p1, ImageData p2) {
-                    return p2.getVotes() - p1.getVotes(); // descending
+                    return (int)(p2.getDate() - p1.getDate()); // descending
                 }
             });
         }
