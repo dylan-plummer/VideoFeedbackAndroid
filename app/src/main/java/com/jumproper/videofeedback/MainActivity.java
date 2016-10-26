@@ -13,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -55,6 +56,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
@@ -83,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
     InterstitialAd mInterstitialAd;
     boolean adOnSave=false;
     boolean isDefault=true;
+    private File imgDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,6 +347,24 @@ public class MainActivity extends AppCompatActivity {
             displayAd();
         }
     }
+    public void randomize(){
+        rotateInput.setProgress((int)(Math.random()*rotateInput.getMax()));
+        Boolean reverse;
+        Random r=new Random();
+        reverse=r.nextBoolean();
+        if(reverse)
+            invertRotation.setChecked(true);
+        else
+            invertRotation.setChecked(false);
+        offsetInput.setProgress((int)(Math.random()*offsetInput.getMax()));
+        centerInput.setProgress((int)(Math.random()*centerInput.getMax()));
+        scaleInput.setProgress((int)(Math.random()*scaleInput.getMax()));
+        rotateCenterInput.setProgress((int)(Math.random()*rotateCenterInput.getMax()));
+        mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax()));
+    }
+    public void randomize(View v){
+        randomize();
+    }
     public void process(ImageView v){
         if(v.getDrawable()==null){
             Log.e("nullDrawable","ImageView not yet updated!");
@@ -518,6 +539,7 @@ public class MainActivity extends AppCompatActivity {
         File f=new File(dir,fileName);
         Log.e("filePath",path);
         Log.e("file",f.toString());
+        imgDir= f;
 
         try {
             out = new FileOutputStream(f);
@@ -608,14 +630,12 @@ public class MainActivity extends AppCompatActivity {
         builder.show().getWindow().setBackgroundDrawableResource(R.color.background);
     }
     public void askToShare(){
-        Bitmap bitmap = overlay;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 25, baos);
-        byte[] data = baos.toByteArray();
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, data);
-        shareIntent.putExtra(Intent.EXTRA_TITLE, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback");
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(imgDir));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback\n" +
+                                                "Follow us on Instagram: https://www.instagram.com/videofeedbackapp/\n" +
+                                                "Tag your photos #videofeedback or tag us @videofeedbackapp to get featured on our page!");
         shareIntent.setType("image/jpeg");
         Intent choose=Intent.createChooser(shareIntent,"Share your creation!");
         startActivity(choose);

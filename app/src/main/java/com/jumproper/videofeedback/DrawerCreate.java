@@ -1,6 +1,7 @@
 package com.jumproper.videofeedback;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -31,9 +32,17 @@ public class DrawerCreate extends AppCompatActivity{
     public void makeDrawer(final Context context, final Activity activity, final FirebaseAuth mAuth, Toolbar toolbar, String title){
 
         new DrawerBuilder().withActivity(activity).build();
-        PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Video Feedback");
-        PrimaryDrawerItem publicImagesItem=new PrimaryDrawerItem().withName("Public Gallery");
-        final PrimaryDrawerItem signIn=new PrimaryDrawerItem().withName("Sign In");
+        PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Video Feedback").withIcon(R.drawable.icon);
+        PrimaryDrawerItem publicImagesItem=new PrimaryDrawerItem().withName("Public Gallery").withIcon(R.drawable.gallery);
+        final PrimaryDrawerItem signIn=new PrimaryDrawerItem()
+                .withName("Sign In")
+                .withIcon(R.drawable.common_google_signin_btn_icon_dark);
+
+
+        final PrimaryDrawerItem instagram=new PrimaryDrawerItem()
+                .withName("@videofeedbackapp")
+                .withIcon(R.drawable.logo)
+                .withDescription("#videofeedback to be featured!");
         final ProfileDrawerItem currentProfile;
 
 
@@ -94,6 +103,8 @@ public class DrawerCreate extends AppCompatActivity{
                         publicImagesItem,
                         new DividerDrawerItem(),
                         signIn,
+                        new DividerDrawerItem(),
+                        instagram,
                         new DividerDrawerItem()
                 )
                 .withSelectedItem(-1)
@@ -122,6 +133,20 @@ public class DrawerCreate extends AppCompatActivity{
                                 Intent intent = new Intent(context, MainActivity.class);
                                 finish();
                                 activity.startActivity(intent);
+                            }
+                        }
+                        if(position==7){
+                            Uri uri = Uri.parse("http://www.instagram.com/p/BMAcvb1ArfO/");
+                            Intent likeIng = new Intent(Intent.ACTION_VIEW, uri);
+
+                            likeIng.setPackage("com.instagram.android");
+
+                            try {
+                                activity.startActivity(likeIng);
+                            } catch (ActivityNotFoundException e) {
+                                Log.e("Activity not found",e.toString());
+                                activity.startActivity(new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse("http://www.instagram.com/videofeedbackapp/")));
                             }
                         }
 

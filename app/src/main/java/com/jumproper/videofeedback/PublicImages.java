@@ -167,7 +167,12 @@ public class PublicImages extends AppCompatActivity {
                 GenericTypeIndicator<ImageData> id = new GenericTypeIndicator<ImageData>() {};
                 for (DataSnapshot users : dataSnapshot.getChildren()) {
                     for(DataSnapshot images : users.getChildren()){
+                        if(sort.equals("My Images") && images.getValue(id).getuId().equals(mAuth.getCurrentUser().getUid())){
                             topImages.add(images.getValue(id));
+                        }
+                        else if(!sort.equals("My Images")) {
+                            topImages.add(images.getValue(id));
+                        }
                     }
                 }
                 if(sort.equals("Top")) {
@@ -231,11 +236,6 @@ public class PublicImages extends AppCompatActivity {
     }
     public void sortByMine(){
         if(mAuth.getCurrentUser()!=null) {
-            for (int j = 0; j < topImages.size(); j++) {
-                if (topImages.get(j).getuId() != mAuth.getCurrentUser().getUid()){
-                    topImages.remove(j);
-                }
-            }
             Collections.sort(topImages, new Comparator<ImageData>() {
                 @Override public int compare(ImageData p1, ImageData p2) {
                     return (int)(p2.getDate() - p1.getDate()); // descending

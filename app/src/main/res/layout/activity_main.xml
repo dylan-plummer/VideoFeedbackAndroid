@@ -37,7 +37,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/textView"
                 android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_marginTop="10dp" />
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/random_button" />
 
             <SeekBar
                 android:layout_width="match_parent"
@@ -310,6 +311,15 @@
                 android:textColor="?android:attr/textColorPrimaryInverse"
                 android:layout_alignTop="@+id/textView2"
                 android:layout_above="@+id/rotation" />
+
+            <Button
+                android:text="Randomize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:id="@+id/random_button"
+                android:layout_centerInParent="true"
+                android:onClick="randomize" />
 
         </RelativeLayout>
     </ScrollView>
