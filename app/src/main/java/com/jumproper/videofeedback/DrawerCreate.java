@@ -4,14 +4,18 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -24,13 +28,20 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
+import java.io.InputStream;
+
 /**
  * Created by jumpr_000 on 9/26/2016.
  */
 
 public class DrawerCreate extends AppCompatActivity{
+    ProfileDrawerItem currentProfile;
+    FirebaseAuth mAuthCopy;
+    Drawer result;
+    AccountHeader headerResult;
     public void makeDrawer(final Context context, final Activity activity, final FirebaseAuth mAuth, Toolbar toolbar, String title){
 
+        mAuthCopy=mAuth;
         new DrawerBuilder().withActivity(activity).build();
         PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Video Feedback").withIcon(R.drawable.icon);
         PrimaryDrawerItem publicImagesItem=new PrimaryDrawerItem().withName("Public Gallery").withIcon(R.drawable.gallery);
@@ -43,14 +54,17 @@ public class DrawerCreate extends AppCompatActivity{
                 .withName("@videofeedbackapp")
                 .withIcon(R.drawable.logo)
                 .withDescription("#videofeedback to be featured!");
-        final ProfileDrawerItem currentProfile;
+
 
 
         if(mAuth.getCurrentUser()!=null){
+            DownloadImageTask downloadImage=new DrawerCreate.DownloadImageTask(currentProfile);
+            downloadImage.execute(mAuth.getCurrentUser().getPhotoUrl().toString());
             currentProfile=new ProfileDrawerItem()
                     .withName(mAuth.getCurrentUser().getDisplayName())
                     .withEnabled(true)
                     .withEmail(mAuth.getCurrentUser().getEmail());
+
             signIn.withName("Sign Out");
         }
         else{
@@ -63,7 +77,7 @@ public class DrawerCreate extends AppCompatActivity{
 
 
 
-        final AccountHeader headerResult = new AccountHeaderBuilder()
+        headerResult = new AccountHeaderBuilder()
                 .withActivity(activity)
                 .addProfiles(
                         currentProfile
@@ -93,7 +107,8 @@ public class DrawerCreate extends AppCompatActivity{
                 .build();
 
 
-        final Drawer result = new DrawerBuilder()
+
+        result = new DrawerBuilder()
                 .withActivity(activity)
                 .withToolbar(toolbar)
                 .withAccountHeader(headerResult)
@@ -158,10 +173,7 @@ public class DrawerCreate extends AppCompatActivity{
                     public void onDrawerOpened(View drawerView) {
                         if((mAuth.getCurrentUser()!=null)&&(currentProfile.getName().toString().equals("Sign in"))){
                             signIn.withName("Sign Out");
-                            headerResult.setActiveProfile(new ProfileDrawerItem()
-                                    .withEmail(mAuth.getCurrentUser().getEmail())
-                                    .withName(mAuth.getCurrentUser().getDisplayName())
-                                    .withIcon(mAuth.getCurrentUser().getPhotoUrl()));
+                            headerResult.setActiveProfile(currentProfile);
                         }
                         else if((mAuth.getCurrentUser()==null)&&!(currentProfile.getName().toString().equals("Sign in"))){
                             signIn.withName("Sign In");
@@ -184,5 +196,40 @@ public class DrawerCreate extends AppCompatActivity{
                 })
                 .build();
         toolbar.setTitle(title);
+    }
+    private class DownloadImageTask extends AsyncTask<String, Void, ProfileDrawerItem> {
+        ProfileDrawerItem bmImage;
+
+        public DownloadImageTask(ProfileDrawerItem bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected ProfileDrawerItem doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+                currentProfile=new ProfileDrawerItem()
+                        .withName(mAuthCopy.getCurrentUser().getDisplayName())
+                        .withEnabled(true)
+                        .withEmail(mAuthCopy.getCurrentUser().getEmail())
+                        .withIcon(mIcon11);
+            } catch (Exception e) {
+                currentProfile=new ProfileDrawerItem()
+                        .withName(mAuthCopy.getCurrentUser().getDisplayName())
+                        .withEnabled(true)
+                        .withEmail(mAuthCopy.getCurrentUser().getEmail());
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+
+            return currentProfile;
+        }
+
+        protected void onPostExecute(ProfileDrawerItem current) {
+            headerResult.setActiveProfile(current);
+        }
     }
 }
