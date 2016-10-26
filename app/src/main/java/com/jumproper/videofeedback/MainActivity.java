@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -35,7 +34,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
@@ -55,18 +53,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
-    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput;
-    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount;
     private CheckBox invertRotation;
     Bitmap img,overlay,original;
     int j=0;
     int iter,invert;
-    float rotate,offset,center,scale,rotateCenter,mirror;
+    float rotate,offset,center,scale,rotateCenter,mirror,skew,skewCenter;
     long delay;
     boolean running=false;
     boolean upload=false;
@@ -105,6 +102,8 @@ public class MainActivity extends AppCompatActivity {
         rotateCenterCount=(TextView)findViewById(R.id.rotate_center_count);
         mirrorCount=(TextView)findViewById(R.id.mirror_count);
         delayCount=(TextView)findViewById(R.id.delay_count);
+        skewCount=(TextView)findViewById(R.id.skew_count);
+        skewCenterCount=(TextView)findViewById(R.id.skew_center_count);
 
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
@@ -114,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
         rotateCenterInput=(SeekBar)findViewById(R.id.rotate_center);
         mirrorInput=(SeekBar)findViewById(R.id.mirror);
         delayInput=(SeekBar)findViewById(R.id.delay);
+        skewInput=(SeekBar)findViewById(R.id.skew);
+        skewCenterInput=(SeekBar)findViewById(R.id.skew_center);
 
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
 
@@ -127,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
         rotateCenterCount.setText(""+rotateCenterInput.getProgress());
         mirrorCount.setText(""+mirrorInput.getProgress());
         delayCount.setText(""+delayInput.getProgress());
+        skewCount.setText(""+skewInput.getProgress());
+        skewCenterCount.setText(""+skewCenterInput.getProgress());
 
         iter=iterInput.getProgress();
         rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
@@ -137,6 +140,8 @@ public class MainActivity extends AppCompatActivity {
         scale=(float)((100-scaleInput.getProgress())/100.0);
         delay=0;
         invert=1;
+        skew =(float)(skewInput.getProgress()/500.0);
+        skewCenter=0;
         img=((BitmapDrawable) imgView.getDrawable()).getBitmap();
         original=img.copy(Bitmap.Config.ARGB_8888,true);
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -275,6 +280,40 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        skewInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                skew =(float)(skewInput.getProgress()/500.0);
+                skewCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        skewCenterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                skewCenter=(float)(10*i);
+                skewCenterCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         invertRotation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -360,7 +399,9 @@ public class MainActivity extends AppCompatActivity {
         centerInput.setProgress((int)(Math.random()*centerInput.getMax()));
         scaleInput.setProgress((int)(Math.random()*scaleInput.getMax()));
         rotateCenterInput.setProgress((int)(Math.random()*rotateCenterInput.getMax()));
-        mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax()));
+        mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax())/4);
+        skewInput.setProgress((int)(Math.random()*skewInput.getMax()));
+        skewCenterInput.setProgress((int)(Math.random()*skewCenterInput.getMax()));
     }
     public void randomize(View v){
         randomize();
@@ -380,6 +421,7 @@ public class MainActivity extends AppCompatActivity {
         matrix.setRotate((invert)*rotate*j,w/2+rotateCenter, h/2+rotateCenter);
         matrix.postScale(scale,scale,w/2+center,h/2+center);
         matrix.postTranslate(w/offset,h/offset);
+        matrix.postSkew(skew, skew, skewCenter,skewCenter);
 
         Matrix flipx = new Matrix();
         flipx.setScale(-1,1);//-(mirror/w/2),1f);
