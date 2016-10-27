@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
     private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput;
     private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount;
-    private CheckBox invertRotation;
+    private CheckBox invertRotation,invertScale;
     Bitmap img,overlay,original;
     int j=0;
     int iter,invert;
@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     InterstitialAd mInterstitialAd;
     boolean adOnSave=false;
     boolean isDefault=true;
+    boolean scaleInvert=false;
     private File imgDir;
 
     @Override
@@ -117,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
         skewCenterInput=(SeekBar)findViewById(R.id.skew_center);
 
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
+        invertScale=(CheckBox)findViewById(R.id.invert_scale);
 
         imgView=(ImageView)findViewById(R.id.image_view);
         openImage=(ImageView)findViewById(R.id.open_image);
@@ -215,7 +217,12 @@ public class MainActivity extends AppCompatActivity {
         scaleInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                scale=(float)((100-i)/100.0);
+                if(scaleInvert) {
+                    scale = (float) (0.99 / ((100 - i) / 100.0));
+                }
+                else{
+                    scale = (float) ((100 - i) / 100.0);
+                }
                 scaleCount.setText("."+(100-i));
             }
 
@@ -326,6 +333,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        invertScale.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                scaleInvert=b;
+                if(scaleInvert) {
+                    scale = (float) (0.99 / ((100 - scaleInput.getProgress()) / 100.0));
+                }
+                else{
+                    scale = (float) ((100 - scaleInput.getProgress()) / 100.0);
+                }
+            }
+        });
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
@@ -395,6 +414,12 @@ public class MainActivity extends AppCompatActivity {
             invertRotation.setChecked(true);
         else
             invertRotation.setChecked(false);
+        if(r.nextBoolean()){
+            invertScale.setChecked(true);
+        }
+        else{
+            invertScale.setChecked(false);
+        }
         offsetInput.setProgress((int)(Math.random()*offsetInput.getMax()));
         centerInput.setProgress((int)(Math.random()*centerInput.getMax()));
         scaleInput.setProgress((int)(Math.random()*scaleInput.getMax()));
