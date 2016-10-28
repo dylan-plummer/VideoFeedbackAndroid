@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     boolean adOnSave=false;
     boolean isDefault=true;
     boolean scaleInvert=false;
+    boolean firstKaleidoscope=true;
     private File imgDir;
 
     @Override
@@ -172,8 +173,11 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 mirrorIter=i+1;
                 if(mirrorIter>1){
-                    iterInput.setProgress(4);
-                    Toast.makeText(MainActivity.this,"The kaleidoscope effect works very quickly. A low iteration count is suggested.", Toast.LENGTH_SHORT).show();
+                    iterInput.setProgress(0);
+                    if(firstKaleidoscope) {
+                        Toast.makeText(MainActivity.this, "The kaleidoscope effect works very quickly. A low iteration count is suggested.", Toast.LENGTH_SHORT).show();
+                        firstKaleidoscope=false;
+                    }
                 }
             }
 
@@ -462,8 +466,8 @@ public class MainActivity extends AppCompatActivity {
         scaleInput.setProgress((int)(Math.random()*scaleInput.getMax()));
         rotateCenterInput.setProgress((int)(Math.random()*rotateCenterInput.getMax()));
         mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax())/4);
-        skewInput.setProgress((int)(Math.random()*skewInput.getMax()));
-        skewCenterInput.setProgress((int)(Math.random()*skewCenterInput.getMax()));
+        skewInput.setProgress((int)(Math.random()*skewInput.getMax()/2));
+        skewCenterInput.setProgress((int)(Math.random()*skewCenterInput.getMax()/2));
     }
     public void randomize(View v){
         randomize();
@@ -513,8 +517,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void flowerMirror(Bitmap bitmap,Canvas canvas,Paint p,int iterations,float cx, float cy,int j){
         Matrix m=new Matrix();
-        m.setRotate((float)(2.0*Math.PI*((j*1.0)/iterations)),cx,cy);
-        m.postScale((float)(1.0-((j*1.0)/iterations)),(float)(1.0-((j*1.0)/iterations)),bitmap.getWidth()/2,bitmap.getHeight()/2);
+        m.setRotate((float)(1.0*Math.PI*((j*1.0)/iterations)),cx,cy);
+        m.postScale((float)(1.0-((j*1.0)/iterations)),(float)(1.0-((j*1.0)/iterations)),bitmap.getWidth(),bitmap.getHeight());
         //m.postTranslate(bitmap.getWidth(),bitmap.getHeight());
         canvas.drawBitmap(bitmap,m,p);
     }
