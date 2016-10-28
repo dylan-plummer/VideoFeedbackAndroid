@@ -389,7 +389,8 @@
                 android:layout_alignParentTop="true"
                 android:id="@+id/random_button"
                 android:layout_centerInParent="true"
-                android:onClick="randomize" />
+                android:onClick="randomize"
+                android:layout_margin="5dp" />
 
             <CheckBox
                 android:text="Reverse"
@@ -402,6 +403,25 @@
                 android:layout_alignBottom="@+id/textView2"
                 android:layout_toEndOf="@+id/textView2"
                 android:layout_marginLeft="16dp" />
+
+            <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinner2"
+                android:layout_toStartOf="@+id/invert_rotation"
+                android:layout_above="@+id/textView"
+                android:layout_marginRight="16dp"
+                android:layout_below="@+id/textView11"
+                android:textAlignment="center" />
+
+            <TextView
+                android:text="Kaleidoscope"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:id="@+id/textView11"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
         </RelativeLayout>
     </ScrollView>

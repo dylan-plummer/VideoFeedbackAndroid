@@ -26,11 +26,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +56,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,9 +64,11 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput;
     private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount;
     private CheckBox invertRotation,invertScale;
+    private Spinner spinner;
     Bitmap img,overlay,original;
     int j=0;
-    int iter,invert;
+    int iter,invert,mirrorIter;
+    private int flowerMirrorIter=1;
     float rotate,offset,center,scale,rotateCenter,mirror,skew,skewCenter;
     long delay;
     boolean running=false;
@@ -120,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
         invertScale=(CheckBox)findViewById(R.id.invert_scale);
 
+        spinner=(Spinner)findViewById(R.id.spinner2);
+
         imgView=(ImageView)findViewById(R.id.image_view);
         openImage=(ImageView)findViewById(R.id.open_image);
         iterCount.setText(""+iterInput.getProgress());
@@ -137,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
         rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
         offset=2+offsetInput.getProgress();
         center=0;
+        mirrorIter=0;
         rotateCenter=0;
         mirror=0;
         scale=(float)((100-scaleInput.getProgress())/100.0);
@@ -146,6 +155,34 @@ public class MainActivity extends AppCompatActivity {
         skewCenter=0;
         img=((BitmapDrawable) imgView.getDrawable()).getBitmap();
         original=img.copy(Bitmap.Config.ARGB_8888,true);
+
+        ArrayList<String> sortBy=new ArrayList<>();
+        sortBy.add("Off");
+        sortBy.add("2");
+        sortBy.add("3");
+        sortBy.add("4");
+        sortBy.add("5");
+        sortBy.add("6");
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.spinner_item, sortBy);
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spinner.setPopupBackgroundResource(R.color.background);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                mirrorIter=i+1;
+                if(mirrorIter>1){
+                    iterInput.setProgress(4);
+                    Toast.makeText(MainActivity.this,"The kaleidoscope effect works very quickly. A low iteration count is suggested.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         iterInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -462,10 +499,24 @@ public class MainActivity extends AppCompatActivity {
 
         canvas.drawBitmap(overlay,zoom,p);
         canvas.drawBitmap(img, matrix, p);
+        if(mirrorIter>0){
+            flowerMirror(overlay,canvas,p,mirrorIter,w/2,h/2,flowerMirrorIter);
+            flowerMirrorIter++;
+            if(flowerMirrorIter>mirrorIter)
+                flowerMirrorIter=1;
+        }
         canvas.drawBitmap(overlay,flipx,p);
         canvas.drawBitmap(overlay,flipy,p);
 
         j++;
+    }
+
+    public void flowerMirror(Bitmap bitmap,Canvas canvas,Paint p,int iterations,float cx, float cy,int j){
+        Matrix m=new Matrix();
+        m.setRotate((float)(2.0*Math.PI*((j*1.0)/iterations)),cx,cy);
+        m.postScale((float)(1.0-((j*1.0)/iterations)),(float)(1.0-((j*1.0)/iterations)),bitmap.getWidth()/2,bitmap.getHeight()/2);
+        //m.postTranslate(bitmap.getWidth(),bitmap.getHeight());
+        canvas.drawBitmap(bitmap,m,p);
     }
 
     public void feedback(View v){
