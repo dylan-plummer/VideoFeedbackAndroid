@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
     private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput;
     private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount;
-    private CheckBox invertRotation,invertScale;
+    private CheckBox invertRotation,invertScale,randomEvery;
     private Spinner spinner;
     Bitmap img,overlay,original;
     int j=0;
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
         invertScale=(CheckBox)findViewById(R.id.invert_scale);
+        randomEvery=(CheckBox)findViewById(R.id.random_every);
 
         spinner=(Spinner)findViewById(R.id.spinner2);
 
@@ -455,17 +456,11 @@ public class MainActivity extends AppCompatActivity {
             invertRotation.setChecked(true);
         else
             invertRotation.setChecked(false);
-        if(r.nextBoolean()){
-            invertScale.setChecked(true);
-        }
-        else{
-            invertScale.setChecked(false);
-        }
         offsetInput.setProgress((int)(Math.random()*offsetInput.getMax()));
         centerInput.setProgress((int)(Math.random()*centerInput.getMax()));
         scaleInput.setProgress((int)(Math.random()*scaleInput.getMax()));
         rotateCenterInput.setProgress((int)(Math.random()*rotateCenterInput.getMax()));
-        mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax())/4);
+        //mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax())/4);
         skewInput.setProgress((int)(Math.random()*skewInput.getMax()/2));
         skewCenterInput.setProgress((int)(Math.random()*skewCenterInput.getMax()/2));
     }
@@ -538,7 +533,11 @@ public class MainActivity extends AppCompatActivity {
                     if(running) {
                         process(imgView);
                         imgView.post(new Runnable() {
-                                public void run() {imgView.setImageBitmap(overlay);
+                                public void run() {
+                                    imgView.setImageBitmap(overlay);
+                                    if(randomEvery.isChecked()){
+                                        randomize();
+                                    }
                                 }
                             });
                     }
