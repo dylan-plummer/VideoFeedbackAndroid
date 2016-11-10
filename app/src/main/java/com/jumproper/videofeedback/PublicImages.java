@@ -167,11 +167,17 @@ public class PublicImages extends AppCompatActivity {
                 GenericTypeIndicator<ImageData> id = new GenericTypeIndicator<ImageData>() {};
                 for (DataSnapshot users : dataSnapshot.getChildren()) {
                     for(DataSnapshot images : users.getChildren()){
-                        if(sort.equals("My Images") && images.getValue(id).getuId().equals(mAuth.getCurrentUser().getUid())){
-                            topImages.add(images.getValue(id));
+                        if(images.getKey().equals("remove_ads")){
+                            if(images.getValue().toString().equals("true")){
+                                MainActivity.ads=false;
+                            }
                         }
-                        else if(!sort.equals("My Images")) {
-                            topImages.add(images.getValue(id));
+                        else {
+                            if (sort.equals("My Images") && images.getValue(id).getuId().equals(mAuth.getCurrentUser().getUid())) {
+                                topImages.add(images.getValue(id));
+                            } else if (!sort.equals("My Images")) {
+                                topImages.add(images.getValue(id));
+                            }
                         }
                     }
                 }

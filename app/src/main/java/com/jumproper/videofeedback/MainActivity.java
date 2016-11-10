@@ -2,10 +2,12 @@ package com.jumproper.videofeedback;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -16,6 +18,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -37,6 +41,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.vending.billing.IInAppBillingService;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
@@ -44,8 +50,11 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -79,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     String uploadName;
     String uploadCreationName;
     FirebaseAuth mAuth;
+    FirebaseAuth.AuthStateListener mAuthListener;
     FirebaseStorage storage;
     StorageReference storageRef;
     private long fileSize;
@@ -99,6 +109,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mAuth=FirebaseAuth.getInstance();
+        mAuthListener=new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                checkPurchase();
+            }
+        };
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://video-feedback-1bd67.appspot.com");
 
@@ -390,13 +406,45 @@ public class MainActivity extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
-        displayAd();
         mInterstitialAd = new InterstitialAd(this);
         mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/1606591469");
         if(ads) {
             requestNewInterstitial();
         }
+        checkPurchase();
     }
+
+    public void checkPurchase(){
+        if(mAuth.getCurrentUser()==null){
+            return;
+        }
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("images").child(mAuth.getCurrentUser().getUid());
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild("remove_ads")) {
+                    Log.e("purchase_test",dataSnapshot.child("remove_ads").getValue().toString());
+                    if (dataSnapshot.child("remove_ads").getValue().toString().equals("true")) {
+                        ads = false;
+                        adOnSave=false;
+                        displayAd();
+                    }
+                    else{
+                        ads=true;
+                        displayAd();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                return;
+            }
+        });
+
+    }
+
 
     public void displayAd(){
 
@@ -412,6 +460,7 @@ public class MainActivity extends AppCompatActivity {
             mAdView.setVisibility(View.GONE);
         }
     }
+
     public void displayInterstitial(){
         mInterstitialAd.show();
     }
@@ -430,7 +479,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
-        if(adOnSave) {
+        if(adOnSave && ads) {
             displayInterstitial();
         }
         if(mAuth.getCurrentUser()!=null) {

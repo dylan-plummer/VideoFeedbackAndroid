@@ -434,7 +434,8 @@
                 android:layout_alignBottom="@+id/random_button"
                 android:layout_alignParentEnd="true"
                 android:layout_toEndOf="@+id/invert_rotation"
-                android:layout_marginLeft="16dp" />
+                android:checked="false"
+                android:textSize="12sp" />
 
         </RelativeLayout>
     </ScrollView>

@@ -5,9 +5,11 @@
     <string name="title_activity_public_images">Public Gallery</string>
     <string name="banner_ad_unit_id">ca-app-pub-2959515976305980/6965454266</string>
     <string name="public_gallery_banner_ad_unit_id">ca-app-pub-2959515976305980/2116452261</string>
+    <string name="base_64_string"></string>
     <string-array name="sort_by">
         <item>Top</item>
         <item>New</item>
         <item>Popular</item>
     </string-array>
+    <string name="title_activity_remove_ads">RemoveAds</string>
 </resources>

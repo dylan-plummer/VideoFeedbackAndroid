@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
         android:allowBackup="true"
@@ -23,10 +24,14 @@
         </activity>
         <activity
             android:name=".SignIn"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".PublicImages"
             android:label="@string/title_activity_public_images"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".RemoveAds"
+            android:label="@string/title_activity_remove_ads"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

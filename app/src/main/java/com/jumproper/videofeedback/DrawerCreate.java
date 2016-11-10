@@ -54,6 +54,7 @@ public class DrawerCreate extends AppCompatActivity{
                 .withName("@videofeedbackapp")
                 .withIcon(R.drawable.logo)
                 .withDescription("#videofeedback to be featured!");
+        PrimaryDrawerItem removeAds=new PrimaryDrawerItem().withName("Remove Ads").withIcon(R.drawable.remove);
 
 
 
@@ -120,6 +121,8 @@ public class DrawerCreate extends AppCompatActivity{
                         signIn,
                         new DividerDrawerItem(),
                         instagram,
+                        new DividerDrawerItem(),
+                        removeAds,
                         new DividerDrawerItem()
                 )
                 .withSelectedItem(-1)
@@ -146,6 +149,7 @@ public class DrawerCreate extends AppCompatActivity{
                             else{
                                 mAuth.signOut();
                                 Intent intent = new Intent(context, MainActivity.class);
+                                MainActivity.ads=true;
                                 finish();
                                 activity.startActivity(intent);
                             }
@@ -163,6 +167,12 @@ public class DrawerCreate extends AppCompatActivity{
                                 activity.startActivity(new Intent(Intent.ACTION_VIEW,
                                         Uri.parse("http://www.instagram.com/videofeedbackapp/")));
                             }
+                        }
+                        if(position==9){
+                            Intent intent = new Intent(context, RemoveAds.class);
+                            if(context.getClass().getName().equals(intent.getComponent().getClassName()))
+                                return true;
+                            activity.startActivity(intent);
                         }
 
                         return true;
