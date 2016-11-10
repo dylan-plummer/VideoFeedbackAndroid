@@ -77,11 +77,6 @@ public class RemoveAds extends AppCompatActivity {
                 }
         });
 
-        if(mAuth.getCurrentUser()==null){
-            Intent intent = new Intent(RemoveAds.this, SignIn.class);
-            startActivity(intent);
-        }
-
         mServiceConn = new ServiceConnection() {
 
             @Override
@@ -94,7 +89,13 @@ public class RemoveAds extends AppCompatActivity {
             public void onServiceConnected(ComponentName name,
                                            IBinder service) {
                 mService = IInAppBillingService.Stub.asInterface(service);
-                purchase.run();
+                if(mAuth.getCurrentUser()!=null){
+                    purchase.run();
+                }
+                else{
+                    finish();
+                }
+
             }
         };
         checkPurchase();
@@ -102,9 +103,10 @@ public class RemoveAds extends AppCompatActivity {
                 new Intent("com.android.vending.billing.InAppBillingService.BIND");
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
-
-
-
+        if(mAuth.getCurrentUser()==null) {
+            Intent intent = new Intent(RemoveAds.this, SignIn.class);
+            startActivity(intent);
+        }
     }
     public void checkPurchase(){
         if(MainActivity.ads==false){
@@ -178,7 +180,6 @@ public class RemoveAds extends AppCompatActivity {
                 public void onServiceConnected(ComponentName name,
                                                IBinder service) {
                     mService = IInAppBillingService.Stub.asInterface(service);
-                    checkPurchase();
                     purchase.run();
                 }
             };
