@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -172,7 +173,13 @@ public class DrawerCreate extends AppCompatActivity{
                             Intent intent = new Intent(context, RemoveAds.class);
                             if(context.getClass().getName().equals(intent.getComponent().getClassName()))
                                 return true;
-                            activity.startActivity(intent);
+                            if(mAuth.getCurrentUser()==null){
+                                Toast.makeText(context,"Please sign in first", Toast.LENGTH_SHORT).show();
+                                return true;
+                            }
+                            else {
+                                activity.startActivity(intent);
+                            }
                         }
 
                         return true;

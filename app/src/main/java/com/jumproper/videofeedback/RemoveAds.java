@@ -50,11 +50,6 @@ public class RemoveAds extends AppCompatActivity {
         purchase=new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if(MainActivity.ads==false){
-                        Toast.makeText(RemoveAds.this,"You have already removed ads!", Toast.LENGTH_SHORT).show();
-                        finish();
-                        return;
-                    }
                     ArrayList<String> purchaseList = new ArrayList<String>();
                     purchaseList.add("remove_ads");
                     Bundle purchaseQuery = new Bundle();
@@ -104,8 +99,8 @@ public class RemoveAds extends AppCompatActivity {
         serviceIntent.setPackage("com.android.vending");
         bindService(serviceIntent, mServiceConn, Context.BIND_AUTO_CREATE);
         if(mAuth.getCurrentUser()==null) {
-            Intent intent = new Intent(RemoveAds.this, SignIn.class);
-            startActivity(intent);
+            Toast.makeText(RemoveAds.this,"Please sign in first.", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
     public void checkPurchase(){
@@ -125,7 +120,6 @@ public class RemoveAds extends AppCompatActivity {
                 if(dataSnapshot.hasChild("remove_ads")) {
                     if (dataSnapshot.child("remove_ads").getValue().toString().equals("true")) {
                         MainActivity.ads = false;
-                        Toast.makeText(RemoveAds.this,"You have already removed ads!", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 }
@@ -143,7 +137,6 @@ public class RemoveAds extends AppCompatActivity {
         Log.e("IAP","request "+requestCode+" result " + resultCode);
         checkPurchase();
         if(resultCode==RESULT_OK && requestCode==420){
-            checkPurchase();
             FirebaseDatabase fb = FirebaseDatabase.getInstance();
             final DatabaseReference myRef = fb.getReference("images");
             String purchaseData = data.getStringExtra("INAPP_PURCHASE_DATA");
@@ -183,7 +176,6 @@ public class RemoveAds extends AppCompatActivity {
                     purchase.run();
                 }
             };
-            checkPurchase();
             Intent serviceIntent =
                     new Intent("com.android.vending.billing.InAppBillingService.BIND");
             serviceIntent.setPackage("com.android.vending");
