@@ -113,7 +113,6 @@ public class PublicImages extends AppCompatActivity {
                 GenericTypeIndicator<ImageData> id = new GenericTypeIndicator<ImageData>() {};
                 for (DataSnapshot users : dataSnapshot.getChildren()) {
                     for(DataSnapshot images : users.getChildren()){
-                        Log.e("Test",images.getValue().toString());
                         if (sort.equals("My Images") && images.getValue(ImageData.class).getuId().equals(mAuth.getCurrentUser().getUid())) {
                             topImages.add(images.getValue(ImageData.class));
                         } else if (!sort.equals("My Images")) {

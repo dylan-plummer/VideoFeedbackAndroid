@@ -58,15 +58,15 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
-    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput;
-    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput,qualityInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount,qualityCount;
     private CheckBox invertRotation,invertScale,randomEvery;
     private Spinner spinner;
     Bitmap img,overlay,original;
     int j=0;
     int iter,invert,mirrorIter;
     private int flowerMirrorIter=1;
-    float rotate,offset,center,scale,rotateCenter,mirror,skew,skewCenter;
+    float rotate,offset,center,scale,rotateCenter,mirror,skew,skewCenter,quality;
     long delay;
     boolean running=false;
     boolean upload=false;
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://video-feedback-1bd67.appspot.com");
 
-        iterCount=(TextView)findViewById(R.id.iter_count);
+        iterCount=(TextView)findViewById(R.id.quality_count);
         rotateCount=(TextView)findViewById(R.id.rotate_count);
         offsetCount=(TextView)findViewById(R.id.offset_count);
         centerCount=(TextView)findViewById(R.id.center_count);
@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         delayCount=(TextView)findViewById(R.id.delay_count);
         skewCount=(TextView)findViewById(R.id.skew_count);
         skewCenterCount=(TextView)findViewById(R.id.skew_center_count);
+        qualityCount=(TextView)findViewById(R.id.quality_count);
 
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         delayInput=(SeekBar)findViewById(R.id.delay);
         skewInput=(SeekBar)findViewById(R.id.skew);
         skewCenterInput=(SeekBar)findViewById(R.id.skew_center);
+        qualityInput=(SeekBar)findViewById(R.id.quality_input);
 
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
         invertScale=(CheckBox)findViewById(R.id.invert_scale);
@@ -144,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         delayCount.setText(""+delayInput.getProgress());
         skewCount.setText(""+skewInput.getProgress());
         skewCenterCount.setText(""+skewCenterInput.getProgress());
+        quality=1;
 
         iter=iterInput.getProgress();
         rotate=(float)(rotateInput.getProgress()*Math.PI/360)/50;
@@ -186,6 +189,31 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        //add listener for changes to the quality seek bar
+        qualityInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                quality=(i/50f+.02f);
+                qualityCount.setText(""+(int)(2*((quality*10))/40*100-1));
+                img=resize(original,1);
+                if(overlay!=null) {
+                    overlay.recycle();
+                }
+                overlay=img.copy(Bitmap.Config.ARGB_8888,true);
+                imgView.setImageBitmap(img);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
 
             }
         });
@@ -823,7 +851,8 @@ public class MainActivity extends AppCompatActivity {
     public Bitmap resize(Bitmap img,int scale){
         int newW=(int)(img.getWidth()/(1+scale/20.0));
         int newH=(int)(img.getHeight()/(1+scale/20.0));
-        if(newH*newW>1920*1080){
+        Log.e("resize","quality:"+quality);
+        if(newH*newW>1920*1080*quality){
             Log.e("resize","w="+newW+" h="+newH);
             return resize(img,(scale+1));
         }
