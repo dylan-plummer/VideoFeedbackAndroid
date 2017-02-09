@@ -2,12 +2,10 @@ package com.jumproper.videofeedback;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,8 +16,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.IBinder;
-import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -41,20 +37,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.vending.billing.IInAppBillingService;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -93,10 +81,8 @@ public class MainActivity extends AppCompatActivity {
     StorageReference storageRef;
     private long fileSize;
     private int notifyId=1;
-    public static boolean ads=true;
+    public static boolean ads=false;
     Thread drawFrame;
-    InterstitialAd mInterstitialAd;
-    boolean adOnSave=false;
     boolean isDefault=true;
     boolean scaleInvert=false;
     boolean firstKaleidoscope=true;
@@ -112,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         mAuthListener=new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                checkPurchase();
+
             }
         };
         storage = FirebaseStorage.getInstance();
@@ -406,82 +392,19 @@ public class MainActivity extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/1606591469");
-        if(ads) {
-            requestNewInterstitial();
-        }
-        checkPurchase();
-    }
-
-    public void checkPurchase(){
-        if(mAuth.getCurrentUser()==null){
-            return;
-        }
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("images").child(mAuth.getCurrentUser().getUid());
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild("remove_ads")) {
-                    Log.e("purchase_test",dataSnapshot.child("remove_ads").getValue().toString());
-                    if (dataSnapshot.child("remove_ads").getValue().toString().equals("true")) {
-                        ads = false;
-                        adOnSave=false;
-                        displayAd();
-                    }
-                    else{
-                        ads=true;
-                        displayAd();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                return;
-            }
-        });
-
     }
 
 
-    public void displayAd(){
 
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2959515976305980~5488721062");
-        AdView mAdView = (AdView) findViewById(R.id.adView);
-        if(ads) {
-            AdRequest adRequest = new AdRequest.Builder()
-                    .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
-                    .build();
-            mAdView.loadAd(adRequest);
-        }
-        else{
-            mAdView.setVisibility(View.GONE);
-        }
-    }
 
-    public void displayInterstitial(){
-        mInterstitialAd.show();
-    }
 
-    private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
-                .build();
-        mInterstitialAd.loadAd(adRequest);
-    }
     @Override
     public void onPause(){
         super.onPause();
-        adOnSave=!adOnSave;
     }
     @Override
     public void onResume(){
         super.onResume();
-        if(adOnSave && ads) {
-            displayInterstitial();
-        }
         if(mAuth.getCurrentUser()!=null) {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
@@ -491,9 +414,6 @@ public class MainActivity extends AppCompatActivity {
                 upload = false;
                 uploadImage();
             }
-        }
-        if(ads) {
-            displayAd();
         }
     }
     public void randomize(){

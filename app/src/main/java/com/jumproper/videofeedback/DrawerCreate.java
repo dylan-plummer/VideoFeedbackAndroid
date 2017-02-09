@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
@@ -15,8 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -55,7 +52,7 @@ public class DrawerCreate extends AppCompatActivity{
                 .withName("@videofeedbackapp")
                 .withIcon(R.drawable.logo)
                 .withDescription("#videofeedback to be featured!");
-        PrimaryDrawerItem removeAds=new PrimaryDrawerItem().withName("Remove Ads").withIcon(R.drawable.remove);
+        //PrimaryDrawerItem removeAds=new PrimaryDrawerItem().withName("Remove Ads").withIcon(R.drawable.remove);
 
 
 
@@ -122,8 +119,6 @@ public class DrawerCreate extends AppCompatActivity{
                         signIn,
                         new DividerDrawerItem(),
                         instagram,
-                        new DividerDrawerItem(),
-                        removeAds,
                         new DividerDrawerItem()
                 )
                 .withSelectedItem(-1)
@@ -167,18 +162,6 @@ public class DrawerCreate extends AppCompatActivity{
                                 Log.e("Activity not found",e.toString());
                                 activity.startActivity(new Intent(Intent.ACTION_VIEW,
                                         Uri.parse("http://www.instagram.com/videofeedbackapp/")));
-                            }
-                        }
-                        if(position==9){
-                            Intent intent = new Intent(context, RemoveAds.class);
-                            if(context.getClass().getName().equals(intent.getComponent().getClassName()))
-                                return true;
-                            if(mAuth.getCurrentUser()==null){
-                                Toast.makeText(context,"Please sign in first", Toast.LENGTH_SHORT).show();
-                                return true;
-                            }
-                            else {
-                                activity.startActivity(intent);
                             }
                         }
 

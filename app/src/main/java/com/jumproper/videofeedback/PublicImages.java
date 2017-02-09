@@ -17,11 +17,6 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -48,7 +43,6 @@ public class PublicImages extends AppCompatActivity {
     int index=0;
     private FirebaseAuth mAuth;
     DownloadImageTask downloadImage;
-    InterstitialAd mInterstitialAd;
     int adCOunt=0;
 
     @Override
@@ -85,10 +79,6 @@ public class PublicImages extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 adCOunt++;
-                if(MainActivity.ads && mInterstitialAd.isLoaded() && adCOunt==3) {
-                    displayInterstitial();
-                    adCOunt=0;
-                }
                 fillImageList(adapterView.getItemAtPosition(i).toString());
 
             }
@@ -101,22 +91,6 @@ public class PublicImages extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
-
-        displayAd();
-
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/2116452261");
-
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdClosed() {
-                requestNewInterstitial();
-                nextImage(currentImage);
-            }
-        });
-        if(MainActivity.ads) {
-            requestNewInterstitial();
-        }
     }
     @Override
     public void onResume() {
@@ -127,34 +101,6 @@ public class PublicImages extends AppCompatActivity {
             DrawerCreate drawer = new DrawerCreate();
             drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
         }
-        if(MainActivity.ads) {
-            displayAd();
-        }
-    }
-
-    public void displayAd(){
-        MobileAds.initialize(getApplicationContext(), "ca-app-pub-2959515976305980~5488721062");
-        AdView mAdView = (AdView) findViewById(R.id.adView2);
-        if(MainActivity.ads) {
-            AdRequest adRequest = new AdRequest.Builder()
-                    .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
-                    .build();
-            mAdView.loadAd(adRequest);
-        }
-        else{
-            mAdView.setVisibility(View.GONE);
-        }
-    }
-
-    public void displayInterstitial(){
-        mInterstitialAd.show();
-    }
-
-    private void requestNewInterstitial() {
-        AdRequest adRequest = new AdRequest.Builder()
-                .addTestDevice("FA57EBFCDEDF2178CC5E01649E78FEEF")
-                .build();
-        mInterstitialAd.loadAd(adRequest);
     }
 
     public void fillImageList(final String sort) {
@@ -167,18 +113,13 @@ public class PublicImages extends AppCompatActivity {
                 GenericTypeIndicator<ImageData> id = new GenericTypeIndicator<ImageData>() {};
                 for (DataSnapshot users : dataSnapshot.getChildren()) {
                     for(DataSnapshot images : users.getChildren()){
-                        if(images.getKey().equals("remove_ads")){
-                            if(images.getValue().toString().equals("true")){
-                                MainActivity.ads=false;
-                            }
+                        Log.e("Test",images.getValue().toString());
+                        if (sort.equals("My Images") && images.getValue(ImageData.class).getuId().equals(mAuth.getCurrentUser().getUid())) {
+                            topImages.add(images.getValue(ImageData.class));
+                        } else if (!sort.equals("My Images")) {
+                            topImages.add(images.getValue(ImageData.class));
                         }
-                        else {
-                            if (sort.equals("My Images") && images.getValue(id).getuId().equals(mAuth.getCurrentUser().getUid())) {
-                                topImages.add(images.getValue(id));
-                            } else if (!sort.equals("My Images")) {
-                                topImages.add(images.getValue(id));
-                            }
-                        }
+
                     }
                 }
                 if(sort.equals("Top")) {

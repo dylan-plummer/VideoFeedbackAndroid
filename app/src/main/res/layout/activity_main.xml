@@ -373,7 +373,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="false"
                 android:id="@+id/invert_scale"
-                ads:buttonTint="#ffffff"
+                android:buttonTint="#ffffff"
                 android:textColor="?android:attr/textColorPrimaryInverse"
                 android:layout_alignTop="@+id/textView5"
                 android:layout_above="@+id/scale"
@@ -397,7 +397,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/invert_rotation"
-                ads:buttonTint="#ffffff"
+                android:buttonTint="#ffffff"
                 android:textColor="?android:attr/textColorPrimaryInverse"
                 android:layout_alignBaseline="@+id/textView2"
                 android:layout_alignBottom="@+id/textView2"
@@ -430,7 +430,7 @@
                 android:layout_alignTop="@+id/random_button"
                 android:id="@+id/random_every"
                 android:textColor="?android:attr/textColorPrimaryInverse"
-                ads:buttonTint="#ffffff"
+                android:buttonTint="#ffffff"
                 android:layout_alignBottom="@+id/random_button"
                 android:layout_alignParentEnd="true"
                 android:layout_toEndOf="@+id/invert_rotation"
@@ -494,7 +494,6 @@
         android:cropToPadding="false"
         android:layout_alignParentStart="false"
         android:layout_above="@+id/view"
-        android:layout_below="@+id/adView"
         android:layout_marginTop="@dimen/activity_vertical_margin" />
 
     <ImageView
@@ -521,16 +520,5 @@
         android:layout_alignBottom="@+id/view"
         android:layout_alignParentEnd="true"
         android:layout_marginRight="@dimen/activity_vertical_margin" />
-
-    <com.google.android.gms.ads.AdView
-        android:id="@+id/adView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true">
-    </com.google.android.gms.ads.AdView>
 
 </RelativeLayout>
