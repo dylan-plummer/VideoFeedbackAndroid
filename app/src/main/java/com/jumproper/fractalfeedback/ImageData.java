@@ -1,4 +1,4 @@
-package com.jumproper.videofeedback;
+package com.jumproper.fractalfeedback;
 
 /**
  * Created by jumpr on 10/16/2016.

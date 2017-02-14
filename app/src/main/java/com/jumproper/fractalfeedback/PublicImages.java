@@ -1,4 +1,4 @@
-package com.jumproper.videofeedback;
+package com.jumproper.fractalfeedback;
 
 import android.content.Intent;
 import android.graphics.Bitmap;

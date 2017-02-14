@@ -1,4 +1,4 @@
-package com.jumproper.videofeedback;
+package com.jumproper.fractalfeedback;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -41,7 +41,7 @@ public class DrawerCreate extends AppCompatActivity{
 
         mAuthCopy=mAuth;
         new DrawerBuilder().withActivity(activity).build();
-        PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Video Feedback").withIcon(R.drawable.icon);
+        PrimaryDrawerItem mainMenuItem=new PrimaryDrawerItem().withName("Fractal Feedback").withIcon(R.drawable.icon);
         PrimaryDrawerItem publicImagesItem=new PrimaryDrawerItem().withName("Public Gallery").withIcon(R.drawable.gallery);
         final PrimaryDrawerItem signIn=new PrimaryDrawerItem()
                 .withName("Sign In")
@@ -49,9 +49,9 @@ public class DrawerCreate extends AppCompatActivity{
 
 
         final PrimaryDrawerItem instagram=new PrimaryDrawerItem()
-                .withName("@videofeedbackapp")
+                .withName("@fractalfeedbackapp")
                 .withIcon(R.drawable.logo)
-                .withDescription("#videofeedback to be featured!");
+                .withDescription("#fractalfeedback to be featured!");
         //PrimaryDrawerItem removeAds=new PrimaryDrawerItem().withName("Remove Ads").withIcon(R.drawable.remove);
 
 
@@ -161,7 +161,7 @@ public class DrawerCreate extends AppCompatActivity{
                             } catch (ActivityNotFoundException e) {
                                 Log.e("Activity not found",e.toString());
                                 activity.startActivity(new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("http://www.instagram.com/videofeedbackapp/")));
+                                        Uri.parse("http://www.instagram.com/fractalfeedbackapp/")));
                             }
                         }
 

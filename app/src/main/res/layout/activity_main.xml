@@ -6,7 +6,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jumproper.videofeedback.MainActivity"
+    tools:context="com.jumproper.fractalfeedback.MainActivity"
     tools:showIn="@layout/activity_main_toolbar"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:background="#212121">
@@ -390,7 +390,7 @@
                 android:id="@+id/random_button"
                 android:layout_centerInParent="true"
                 android:onClick="randomize"
-                android:layout_margin="5dp" />
+                android:layout_margin="8dp" />
 
             <CheckBox
                 android:text="Reverse"
@@ -435,7 +435,8 @@
                 android:layout_alignParentEnd="true"
                 android:layout_toEndOf="@+id/invert_rotation"
                 android:checked="false"
-                android:textSize="12sp" />
+                android:textSize="10sp"
+                android:layout_marginLeft="8dp" />
 
         </RelativeLayout>
     </ScrollView>
@@ -546,7 +547,7 @@
         android:max="100" />
 
     <TextView
-        android:text="1"
+        android:text="50"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/quality_count"

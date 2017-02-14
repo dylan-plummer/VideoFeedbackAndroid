@@ -1,4 +1,4 @@
-package com.jumproper.videofeedback;
+package com.jumproper.fractalfeedback;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://video-feedback-1bd67.appspot.com");
 
-        iterCount=(TextView)findViewById(R.id.quality_count);
+        iterCount=(TextView)findViewById(R.id.iter_count);
         rotateCount=(TextView)findViewById(R.id.rotate_count);
         offsetCount=(TextView)findViewById(R.id.offset_count);
         centerCount=(TextView)findViewById(R.id.center_count);
@@ -419,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         DrawerCreate drawer=new DrawerCreate();
-        drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
+        drawer.makeDrawer(this, this, mAuth, toolbar, "Fractal Feedback");
     }
 
 
@@ -437,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             DrawerCreate drawer=new DrawerCreate();
-            drawer.makeDrawer(this, this, mAuth, toolbar, "Video Feedback");
+            drawer.makeDrawer(this, this, mAuth, toolbar, "Fractal Feedback");
             if(upload) {
                 upload = false;
                 uploadImage();
@@ -664,7 +664,7 @@ public class MainActivity extends AppCompatActivity {
             img.compress(Bitmap.CompressFormat.JPEG, 50, out);
             ContentValues values = new ContentValues();
             values.put(MediaStore.Images.Media.DATA,f.getAbsolutePath());
-            values.put(MediaStore.Images.Media.DESCRIPTION,"Created with Video Feedback app.");
+            values.put(MediaStore.Images.Media.DESCRIPTION,"Created with Fractal Feedback app.");
             values.put(MediaStore.Images.Media.MIME_TYPE,"image/jpeg");
             MainActivity.this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);
         } catch (Exception e) {
@@ -751,7 +751,7 @@ public class MainActivity extends AppCompatActivity {
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(imgDir));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "Made with Video Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.videofeedback\n" +
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Made with Fractal Feedback Simulator: https://play.google.com/store/apps/details?id=com.jumproper.fractalfeedback\n" +
                                                 "Follow us on Instagram: https://www.instagram.com/videofeedbackapp/\n" +
                                                 "Tag your photos #videofeedback or tag us @videofeedbackapp to get featured on our page!");
         shareIntent.setType("image/jpeg");

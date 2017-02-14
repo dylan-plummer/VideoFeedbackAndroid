@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Video Feedback</string>
+    <string name="app_name">Fractal Feedback</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
     <string name="google_sign_in_auth_id">846970540091-3t4jak14ts61tr6mtatujvl1i85no1sj.apps.googleusercontent.com</string>
     <string name="title_activity_public_images">Public Gallery</string>
