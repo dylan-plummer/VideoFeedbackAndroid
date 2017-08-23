@@ -29,10 +29,6 @@
             android:name=".PublicImages"
             android:label="@string/title_activity_public_images"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".RemoveAds"
-            android:label="@string/title_activity_remove_ads"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

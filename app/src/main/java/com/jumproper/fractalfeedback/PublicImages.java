@@ -155,17 +155,15 @@ public class PublicImages extends AppCompatActivity {
     public void sortByPopular(){
         Collections.sort(topImages, new Comparator<ImageData>() {
             @Override public int compare(ImageData p1, ImageData p2) {
-                return (int)(p2.getDate() - p1.getDate()); // descending
+                return (int)((p2.getDate() - p1.getDate())/1000); // descending
             }
         });
-        long newest=topImages.get(0).getDate();
         for(int j=0;j<topImages.size();j++){
-            if(topImages.size()<11){
-                break;
-            }
-            if(newest-topImages.get(j).getDate()>86400000/2){
+            Log.e("Time",""+System.currentTimeMillis());
+            if(topImages.get(j).getVotes()>8){
                 topImages.remove(j);
             }
+
         }
         Collections.sort(topImages, new Comparator<ImageData>() {
             @Override public int compare(ImageData p1, ImageData p2) {
@@ -176,7 +174,7 @@ public class PublicImages extends AppCompatActivity {
     public void sortByNew(){
         Collections.sort(topImages, new Comparator<ImageData>() {
             @Override public int compare(ImageData p1, ImageData p2) {
-                return (int)(p2.getDate() - p1.getDate()); // descending
+                return (int)((p2.getDate() - p1.getDate())/1000); // descending
             }
         });
     }
@@ -184,7 +182,7 @@ public class PublicImages extends AppCompatActivity {
         if(mAuth.getCurrentUser()!=null) {
             Collections.sort(topImages, new Comparator<ImageData>() {
                 @Override public int compare(ImageData p1, ImageData p2) {
-                    return (int)(p2.getDate() - p1.getDate()); // descending
+                    return (int)((p2.getDate() - p1.getDate())/1000); // descending
                 }
             });
         }

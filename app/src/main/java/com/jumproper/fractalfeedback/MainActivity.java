@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -37,7 +38,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.OnColorSelectedListener;
+import com.flask.colorpicker.builder.ColorPickerClickListener;
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -58,13 +62,13 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
-    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput,qualityInput;
-    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount,qualityCount;
-    private CheckBox invertRotation,invertScale,randomEvery;
+    private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput,qualityInput,randomFrameInput;
+    private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount,qualityCount,randomFrameCount;
+    private CheckBox invertRotation,invertScale;
     private Spinner spinner;
     Bitmap img,overlay,original;
     int j=0;
-    int iter,invert,mirrorIter;
+    int h,w,resizeRatio,iter,invert,mirrorIter,randomFrameNum,currentRandomFrame,color;
     private int flowerMirrorIter=1;
     float rotate,offset,center,scale,rotateCenter,mirror,skew,skewCenter,quality;
     long delay;
@@ -83,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     private int notifyId=1;
     public static boolean ads=false;
     Thread drawFrame;
+    boolean openedResize=false;
     boolean isDefault=true;
     boolean scaleInvert=false;
     boolean firstKaleidoscope=true;
@@ -115,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
         skewCount=(TextView)findViewById(R.id.skew_count);
         skewCenterCount=(TextView)findViewById(R.id.skew_center_count);
         qualityCount=(TextView)findViewById(R.id.quality_count);
+        randomFrameCount=(TextView)findViewById(R.id.random_frame_count);
 
         iterInput=(SeekBar)findViewById(R.id.iterations);
         rotateInput=(SeekBar)findViewById(R.id.rotation);
@@ -127,10 +133,10 @@ public class MainActivity extends AppCompatActivity {
         skewInput=(SeekBar)findViewById(R.id.skew);
         skewCenterInput=(SeekBar)findViewById(R.id.skew_center);
         qualityInput=(SeekBar)findViewById(R.id.quality_input);
+        randomFrameInput=(SeekBar)findViewById(R.id.random_frame_number);
 
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
         invertScale=(CheckBox)findViewById(R.id.invert_scale);
-        randomEvery=(CheckBox)findViewById(R.id.random_every);
 
         spinner=(Spinner)findViewById(R.id.spinner2);
 
@@ -160,7 +166,12 @@ public class MainActivity extends AppCompatActivity {
         invert=1;
         skew =(float)(skewInput.getProgress()/500.0);
         skewCenter=0;
+        randomFrameNum=20;
+        currentRandomFrame=0;
+        color=getResources().getColor(R.color.white);
         img=((BitmapDrawable) imgView.getDrawable()).getBitmap();
+        h=img.getHeight();
+        w=img.getWidth();
         original=img.copy(Bitmap.Config.ARGB_8888,true);
 
         ArrayList<String> sortBy=new ArrayList<>();
@@ -197,14 +208,16 @@ public class MainActivity extends AppCompatActivity {
         qualityInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                quality=(i/50f+.02f);
-                qualityCount.setText(""+(int)(2*((quality*10))/40*100-1));
-                img=resize(original,1);
-                if(overlay!=null) {
-                    overlay.recycle();
+                if(!openedResize) {
+                    quality = (i / 50f + .02f);
+                    qualityCount.setText(""+i);
+                    img = resize(original, 1);
+                    if (overlay != null) {
+                        overlay.recycle();
+                    }
+                    overlay = img.copy(Bitmap.Config.ARGB_8888, true);
+                    imgView.setImageBitmap(img);
                 }
-                overlay=img.copy(Bitmap.Config.ARGB_8888,true);
-                imgView.setImageBitmap(img);
             }
 
             @Override
@@ -393,6 +406,23 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        randomFrameInput.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                randomFrameNum=i;
+                randomFrameCount.setText(""+i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         invertRotation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -460,6 +490,7 @@ public class MainActivity extends AppCompatActivity {
         //mirrorInput.setProgress((int)(Math.random()*mirrorInput.getMax())/4);
         skewInput.setProgress((int)(Math.random()*skewInput.getMax()/2));
         skewCenterInput.setProgress((int)(Math.random()*skewCenterInput.getMax()/2));
+        color = Color.argb(255, r.nextInt(256), r.nextInt(256), r.nextInt(256));
     }
     public void randomize(View v){
         randomize();
@@ -492,7 +523,6 @@ public class MainActivity extends AppCompatActivity {
         Matrix zoom = new Matrix();
         zoom.setRotate(mirror/(w*h)*j,w/2,h/2);
         zoom.postScale(1+mirror/w,1+mirror/h,w/2,h/2);
-
         canvas.drawBitmap(overlay,zoom,p);
         canvas.drawBitmap(img, matrix, p);
         if(mirrorIter>0){
@@ -503,6 +533,9 @@ public class MainActivity extends AppCompatActivity {
         }
         canvas.drawBitmap(overlay,flipx,p);
         canvas.drawBitmap(overlay,flipy,p);
+        p.setColor(color);
+        p.setAlpha(20);
+        canvas.drawCircle(center,rotateCenter,overlay.getHeight()/6,p);
 
         j++;
     }
@@ -532,8 +565,14 @@ public class MainActivity extends AppCompatActivity {
                         imgView.post(new Runnable() {
                                 public void run() {
                                     imgView.setImageBitmap(overlay);
-                                    if(randomEvery.isChecked()){
-                                        randomize();
+                                    if(randomFrameNum>0){
+                                        if(currentRandomFrame==randomFrameNum) {
+                                            randomize();
+                                            currentRandomFrame=0;
+                                        }
+                                        else{
+                                            currentRandomFrame++;
+                                        }
                                     }
                                 }
                             });
@@ -831,6 +870,11 @@ public class MainActivity extends AppCompatActivity {
                 openImage.setVisibility(View.INVISIBLE);
                 imgView.setImageBitmap(bitmap);
                 original = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                openedResize=true;
+                qualityInput.setProgress(resizeRatio);
+                qualityCount.setText(""+resizeRatio);
+
+                openedResize=false;
             } catch (IOException e) {
                 Toast.makeText(MainActivity.this,"Could not load image",Toast.LENGTH_SHORT);
                 e.printStackTrace();
@@ -856,8 +900,39 @@ public class MainActivity extends AppCompatActivity {
             Log.e("resize","w="+newW+" h="+newH);
             return resize(img,(scale+1));
         }
-        Log.e("resize","w="+newW+" h="+newH);
+        resizeRatio = (int)((newW*1.0/w + newH*1.0/h)/2 * 100);
+        if(resizeRatio>100){
+            resizeRatio=100;
+        }
+        Log.e("resize","w="+newW+" h="+newH+"ratio="+resizeRatio);
         return Bitmap.createScaledBitmap(img,newW,newH,false);
+    }
+    public void selectColor(View v){
+        android.support.v7.app.AlertDialog pallete = ColorPickerDialogBuilder
+                .with(this)
+                .initialColor(color)
+                .wheelType(ColorPickerView.WHEEL_TYPE.CIRCLE)
+                .density(12)
+                .setOnColorSelectedListener(new OnColorSelectedListener() {
+                    @Override
+                    public void onColorSelected(int selectedColor) {
+
+                    }
+                })
+                .setPositiveButton("Select", new ColorPickerClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                        color=selectedColor;
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .build();
+        pallete.getWindow().setBackgroundDrawableResource(R.color.background);
+        pallete.show();
     }
 
 }

@@ -41,29 +41,53 @@
                 android:layout_below="@+id/random_button" />
 
             <SeekBar
+                android:id="@+id/iterations"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/iterations"
-                android:max="200"
-                android:layout_below="@+id/textView"
                 android:layout_alignParentStart="true"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
+                android:layout_below="@+id/textView"
                 android:layout_toStartOf="@+id/iter_count"
-                android:progress="50" />
+                android:max="200"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:progress="100" />
+
+            <SeekBar
+                android:id="@+id/random_frame_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/random_frame_count"
+                android:layout_alignStart="@+id/random_frame_label"
+                android:layout_marginLeft="8dp"
+                android:layout_toStartOf="@+id/random_frame_count"
+                android:max="50"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:progress="20" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/random_frame_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/iter_count"
                 android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/iterations"
-                android:layout_alignBottom="@+id/iterations"
+                android:layout_below="@+id/random_frame_label"
                 android:gravity="right"
-                android:padding="8dp" />
+                android:padding="8dp"
+                android:text="20"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
+
+            <TextView
+                android:id="@+id/iter_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/iterations"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/iterations"
+                android:layout_toEndOf="@+id/random_frame_number"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="100"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
             <TextView
                 android:text="Rotation (Degrees):"
@@ -85,20 +109,21 @@
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:progress="180"
-                android:layout_toStartOf="@+id/rotate_count" />
+                android:layout_toStartOf="@+id/iter_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/rotate_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/rotate_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/rotation"
                 android:layout_alignBottom="@+id/rotation"
-                android:gravity="right"
-                android:padding="8dp" />
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/rotation"
+                android:layout_toEndOf="@+id/rotation"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
             <TextView
                 android:text="Offset"
                 android:layout_width="wrap_content"
@@ -121,17 +146,17 @@
                 android:progress="0" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/offset_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/offset_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/offset"
                 android:layout_alignBottom="@+id/offset"
-                android:gravity="right"
-                android:padding="8dp" />
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/offset"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
             <TextView
                 android:text="Scale Center"
@@ -155,17 +180,17 @@
                 android:layout_toStartOf="@+id/center_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/center_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/center_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/center"
                 android:layout_alignBottom="@+id/center"
-                android:gravity="right"
-                android:padding="8dp" />
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/center"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
             <TextView
                 android:text="Scale Value"
@@ -189,17 +214,17 @@
                 android:layout_toStartOf="@+id/scale_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/scale_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/scale_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/scale"
                 android:layout_alignBottom="@+id/scale"
-                android:gravity="right"
-                android:padding="8dp" />
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/scale"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
             <TextView
                 android:text="Rotation Center"
                 android:layout_width="wrap_content"
@@ -222,17 +247,17 @@
                 android:layout_toStartOf="@+id/rotate_center_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/rotate_center_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/rotate_center_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/rotate_center"
                 android:layout_alignBottom="@+id/rotate_center"
-                android:gravity="right"
-                android:padding="8dp" />
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/rotate_center"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
             <TextView
                 android:text="Delay (Milliseconds)"
                 android:layout_width="wrap_content"
@@ -255,17 +280,17 @@
                 android:layout_toStartOf="@+id/delay_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/delay_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/delay_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/delay"
                 android:layout_alignBottom="@+id/delay"
-                android:gravity="right"
-                android:padding="8dp" />
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/delay"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
             <TextView
                 android:text="Zoom"
@@ -289,17 +314,17 @@
                 android:layout_toStartOf="@+id/mirror_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/mirror_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/mirror_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/mirror"
                 android:layout_alignBottom="@+id/mirror"
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/mirror"
                 android:gravity="center"
-                android:padding="8dp" />
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
             <TextView
                 android:text="Skew"
                 android:layout_width="wrap_content"
@@ -322,17 +347,17 @@
                 android:layout_toStartOf="@+id/skew_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/skew_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/skew_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/skew"
                 android:layout_alignBottom="@+id/skew"
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/skew"
                 android:gravity="center"
-                android:padding="8dp" />
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
             <TextView
                 android:text="Skew Center"
                 android:layout_width="wrap_content"
@@ -355,17 +380,17 @@
                 android:layout_toStartOf="@+id/skew_center_count" />
 
             <TextView
-                android:text="1"
+                android:id="@+id/skew_center_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/skew_center_count"
-                android:layout_alignParentEnd="true"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:layout_alignParentBottom="false"
-                android:layout_alignTop="@+id/skew_center"
                 android:layout_alignBottom="@+id/skew_center"
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentEnd="true"
+                android:layout_alignTop="@+id/skew_center"
                 android:gravity="center"
-                android:padding="8dp" />
+                android:padding="4dp"
+                android:text="1"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
             <CheckBox
                 android:text="Invert"
@@ -405,38 +430,36 @@
                 android:layout_marginLeft="16dp" />
 
             <Spinner
+                android:id="@+id/spinner2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/spinner2"
-                android:layout_toStartOf="@+id/invert_rotation"
-                android:layout_above="@+id/textView"
-                android:layout_marginRight="16dp"
-                android:textAlignment="center"
-                android:layout_below="@+id/textView12" />
+                android:layout_alignBottom="@+id/random_frame_number"
+                android:layout_below="@+id/textView13"
+                android:layout_toStartOf="@+id/random_button"
+                android:textAlignment="center" />
 
             <TextView
-                android:text="Kaleidoscope"
+                android:id="@+id/random_frame_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
-                android:layout_alignParentStart="true"
-                android:id="@+id/textView12"
+                android:layout_toEndOf="@+id/invert_rotation"
+                android:paddingRight="8dp"
+                android:text="Randomize every"
+                android:textAlignment="textEnd"
                 android:textColor="?android:attr/textColorPrimaryInverse" />
 
-            <CheckBox
-                android:text="Randomize every frame"
+            <TextView
+                android:id="@+id/textView13"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/random_button"
-                android:id="@+id/random_every"
-                android:textColor="?android:attr/textColorPrimaryInverse"
-                android:buttonTint="#ffffff"
-                android:layout_alignBottom="@+id/random_button"
-                android:layout_alignParentEnd="true"
-                android:layout_toEndOf="@+id/invert_rotation"
-                android:checked="false"
-                android:textSize="10sp"
-                android:layout_marginLeft="8dp" />
+                android:layout_alignEnd="@+id/textView8"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="Kaleidoscope"
+                android:textAlignment="textStart"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
         </RelativeLayout>
     </ScrollView>
@@ -530,31 +553,44 @@
         android:textColor="?android:attr/textColorPrimaryInverse"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:padding="8dp"
+        android:padding="4dp"
         android:layout_marginLeft="16dp" />
 
     <SeekBar
+        android:id="@+id/quality_input"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/quality_input"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView11"
+        android:layout_marginLeft="16dp"
+        android:layout_toStartOf="@+id/quality_count"
+        android:max="100"
         android:paddingBottom="8dp"
         android:paddingTop="8dp"
-        android:layout_below="@+id/textView11"
-        android:layout_alignParentStart="true"
-        android:layout_marginLeft="16dp"
-        android:progress="50"
-        android:layout_toStartOf="@+id/quality_count"
-        android:max="100" />
+        android:progress="100" />
 
     <TextView
-        android:text="50"
+        android:id="@+id/quality_count"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/quality_count"
-        android:textColor="?android:attr/textColorPrimaryInverse"
         android:gravity="right"
         android:padding="8dp"
-        android:layout_alignBottom="@+id/quality_input"
-        android:layout_alignEnd="@+id/clear_image" />
+        android:text="100"
+        android:textColor="?android:attr/textColorPrimaryInverse"
+        android:layout_above="@+id/image_view"
+        android:layout_toStartOf="@+id/color_picker" />
+
+    <ImageView
+        android:id="@+id/color_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/image_view"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/refresh"
+        android:onClick="selectColor"
+        android:padding="8dp"
+        android:visibility="visible"
+        ads:srcCompat="@drawable/gradient" />
 
 </RelativeLayout>
