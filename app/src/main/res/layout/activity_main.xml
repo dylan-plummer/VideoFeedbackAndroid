@@ -32,13 +32,46 @@
             android:orientation="vertical" >
 
             <TextView
-                android:text="Iterations"
+                android:id="@+id/textView11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/random_button"
+                android:padding="4dp"
+                android:text="Image Quality"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
+
+            <SeekBar
+                android:id="@+id/quality_input"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/textView11"
+                android:layout_toStartOf="@+id/quality_count"
+                android:max="100"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:progress="100" />
+
+            <TextView
+                android:id="@+id/quality_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_below="@+id/textView11"
+                android:gravity="right"
+                android:padding="8dp"
+                android:text="100"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
+
+            <TextView
                 android:id="@+id/textView"
-                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/quality_input"
                 android:layout_marginTop="8dp"
-                android:layout_below="@+id/random_button" />
+                android:text="Iterations"
+                android:textColor="?android:attr/textColorPrimaryInverse" />
 
             <SeekBar
                 android:id="@+id/iterations"
@@ -57,13 +90,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/random_frame_count"
-                android:layout_alignStart="@+id/random_frame_label"
                 android:layout_marginLeft="8dp"
-                android:layout_toStartOf="@+id/random_frame_count"
                 android:max="50"
                 android:paddingBottom="8dp"
                 android:paddingTop="8dp"
-                android:progress="20" />
+                android:progress="20"
+                android:layout_alignStart="@+id/random_frame_label"
+                android:layout_toStartOf="@+id/random_frame_count" />
 
             <TextView
                 android:id="@+id/random_frame_count"
@@ -408,14 +441,14 @@
                 android:layout_marginLeft="16dp" />
 
             <Button
-                android:text="Randomize"
+                android:id="@+id/random_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:id="@+id/random_button"
-                android:layout_centerInParent="true"
+                android:layout_alignBaseline="@+id/save_video"
+                android:layout_alignBottom="@+id/save_video"
+                android:layout_toEndOf="@+id/textView8"
                 android:onClick="randomize"
-                android:layout_margin="8dp" />
+                android:text="Randomize" />
 
             <CheckBox
                 android:text="Reverse"
@@ -436,7 +469,8 @@
                 android:layout_alignBottom="@+id/random_frame_number"
                 android:layout_below="@+id/textView13"
                 android:layout_toStartOf="@+id/random_button"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/random_frame_label"
@@ -446,7 +480,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/invert_rotation"
                 android:paddingRight="8dp"
-                android:text="Randomize every"
+                android:text="Random Interval"
                 android:textAlignment="textEnd"
                 android:textColor="?android:attr/textColorPrimaryInverse" />
 
@@ -459,7 +493,18 @@
                 android:layout_alignParentTop="true"
                 android:text="Kaleidoscope"
                 android:textAlignment="textStart"
-                android:textColor="?android:attr/textColorPrimaryInverse" />
+                android:textColor="?android:attr/textColorPrimaryInverse"
+                android:visibility="gone" />
+
+            <CheckBox
+                android:id="@+id/save_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/spinner2"
+                android:buttonTint="#ffffff"
+                android:text="Save Video"
+                android:textColor="@color/white" />
 
         </RelativeLayout>
     </ScrollView>
@@ -511,14 +556,15 @@
         android:layout_centerHorizontal="true" />
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/image"
         android:id="@+id/image_view"
-        android:cropToPadding="false"
-        android:layout_alignParentStart="false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/view"
-        android:layout_below="@+id/quality_input" />
+        android:layout_alignParentStart="false"
+        android:cropToPadding="false"
+        android:scaleType="fitStart"
+        android:src="@drawable/image" />
+
 
     <ImageView
         android:layout_width="wrap_content"
@@ -545,41 +591,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginRight="@dimen/activity_vertical_margin" />
 
-    <TextView
-        android:text="Image Quality"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView11"
-        android:textColor="?android:attr/textColorPrimaryInverse"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:padding="4dp"
-        android:layout_marginLeft="16dp" />
-
-    <SeekBar
-        android:id="@+id/quality_input"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/textView11"
-        android:layout_marginLeft="16dp"
-        android:layout_toStartOf="@+id/quality_count"
-        android:max="100"
-        android:paddingBottom="8dp"
-        android:paddingTop="8dp"
-        android:progress="100" />
-
-    <TextView
-        android:id="@+id/quality_count"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="right"
-        android:padding="8dp"
-        android:text="100"
-        android:textColor="?android:attr/textColorPrimaryInverse"
-        android:layout_above="@+id/image_view"
-        android:layout_toStartOf="@+id/color_picker" />
-
     <ImageView
         android:id="@+id/color_picker"
         android:layout_width="wrap_content"
@@ -590,7 +601,7 @@
         android:layout_alignStart="@+id/refresh"
         android:onClick="selectColor"
         android:padding="8dp"
-        android:visibility="visible"
+        android:visibility="gone"
         ads:srcCompat="@drawable/gradient" />
 
 </RelativeLayout>

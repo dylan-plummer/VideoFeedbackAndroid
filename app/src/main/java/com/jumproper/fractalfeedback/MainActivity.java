@@ -25,6 +25,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -42,6 +43,9 @@ import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.OnColorSelectedListener;
 import com.flask.colorpicker.builder.ColorPickerClickListener;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -53,8 +57,14 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.jcodec.api.android.AndroidSequenceEncoder;
+import org.jcodec.common.io.NIOUtils;
+import org.jcodec.common.io.SeekableByteChannel;
+import org.jcodec.common.model.Rational;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageView imgView,openImage;
     private SeekBar iterInput,rotateInput,offsetInput,centerInput,scaleInput,rotateCenterInput,mirrorInput,delayInput,skewInput,skewCenterInput,qualityInput,randomFrameInput;
     private TextView iterCount,rotateCount,offsetCount,centerCount,scaleCount,rotateCenterCount,mirrorCount,delayCount,skewCount,skewCenterCount,qualityCount,randomFrameCount;
-    private CheckBox invertRotation,invertScale;
+    private CheckBox invertRotation,invertScale, saveVideo;
     private Spinner spinner;
     Bitmap img,overlay,original;
     int j=0;
@@ -91,7 +101,15 @@ public class MainActivity extends AppCompatActivity {
     boolean isDefault=true;
     boolean scaleInvert=false;
     boolean firstKaleidoscope=true;
+    float imageX=0;
+    float imageY=0;
+    private boolean isTouching=false;
     private File imgDir;
+    private InterstitialAd mInterstitialAd;
+    private AndroidSequenceEncoder encoder;
+    private SeekableByteChannel out;
+    private ArrayList<Bitmap> frames;
+    private boolean saveFrames = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +124,19 @@ public class MainActivity extends AppCompatActivity {
 
             }
         };
+
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-2959515976305980/9559522726");
+        mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("2CC2625EB00F3EB58B6E5BC0B53C5A1D").build());
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                // Load the next interstitial.
+                mInterstitialAd.loadAd(new AdRequest.Builder().addTestDevice("2CC2625EB00F3EB58B6E5BC0B53C5A1D").build());
+            }
+
+        });
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://video-feedback-1bd67.appspot.com");
 
@@ -137,6 +168,7 @@ public class MainActivity extends AppCompatActivity {
 
         invertRotation=(CheckBox)findViewById(R.id.invert_rotation);
         invertScale=(CheckBox)findViewById(R.id.invert_scale);
+        saveVideo=(CheckBox)findViewById(R.id.save_video);
 
         spinner=(Spinner)findViewById(R.id.spinner2);
 
@@ -174,6 +206,8 @@ public class MainActivity extends AppCompatActivity {
         w=img.getWidth();
         original=img.copy(Bitmap.Config.ARGB_8888,true);
 
+
+
         ArrayList<String> sortBy=new ArrayList<>();
         sortBy.add("Off");
         sortBy.add("2");
@@ -201,6 +235,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
+
+        saveVideo.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    saveFrames = true;
+                    if(w>512 || h>512){
+                        qualityInput.setProgress((w + h) / 256);
+                    }
+                }else{
+                    saveFrames = false;
+                }
             }
         });
 
@@ -447,6 +495,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        imgView.setOnDragListener(new View.OnDragListener() {
+            @Override
+            public boolean onDrag(View view, DragEvent dragEvent) {
+                isTouching=true;
+                imageX=dragEvent.getX();
+                imageY=dragEvent.getY();
+                return false;
+            }
+        });
+
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Fractal Feedback");
@@ -508,7 +566,17 @@ public class MainActivity extends AppCompatActivity {
         Paint p=new Paint();
         Matrix matrix = new Matrix();
         matrix.setRotate((invert)*rotate*j,w/2+rotateCenter, h/2+rotateCenter);
-        matrix.postScale(scale,scale,w/2+center,h/2+center);
+        float centerX;
+        float centerY;
+        if(isTouching){
+            centerX = imageX;
+            centerY = imageY;
+        }
+        else {
+            centerX = w / 2 + center;
+            centerY = h / 2 + center;
+        }
+        matrix.postScale(scale,scale,centerX,centerY);
         matrix.postTranslate(w/offset,h/offset);
         matrix.postSkew(skew, skew, skewCenter,skewCenter);
 
@@ -533,9 +601,6 @@ public class MainActivity extends AppCompatActivity {
         }
         canvas.drawBitmap(overlay,flipx,p);
         canvas.drawBitmap(overlay,flipy,p);
-        p.setColor(color);
-        p.setAlpha(20);
-        canvas.drawCircle(center,rotateCenter,overlay.getHeight()/6,p);
 
         j++;
     }
@@ -548,6 +613,63 @@ public class MainActivity extends AppCompatActivity {
         canvas.drawBitmap(bitmap,m,p);
     }
 
+    public void saveVideo(){
+        File file = new File(getExternalFilesDir(null), File.separator+"tmp");
+        if(!file.exists()){
+            file.mkdirs();
+        }
+        File file2 = new File(file,"output.mp4");
+
+        String path = file2.getPath();
+        Log.e("Video",path);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Video",e.getLocalizedMessage());
+        }
+        try {
+            out = NIOUtils.writableFileChannel(path);
+            if(out.isOpen()){
+                Log.e("Video","channel open");
+            }
+            encoder = new AndroidSequenceEncoder(out, Rational.R(25, 1));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.e("Video",e.getLocalizedMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Video",e.getLocalizedMessage());
+        }
+        for(int i = 0; i <frames.size(); i++){
+            try {
+                encoder.encodeImage(frames.get(i));
+                Log.e("Video","encoded "+ i + " of " + frames.size());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e("Video",e.getLocalizedMessage());
+                i--;
+            } catch (Exception e){
+                e.printStackTrace();
+                Log.e("Video",e.toString());
+                i--;
+            }
+        }
+        try {
+            encoder.finish();
+            Log.e("Video","Finished");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Video",e.getLocalizedMessage());
+        } catch (Exception e){
+            e.printStackTrace();
+            Log.e("Video",e.getLocalizedMessage());
+        } finally {
+            NIOUtils.closeQuietly(out);
+            Log.e("Video","closed");
+        }
+    }
+
     public void feedback(View v){
 
         if(running){
@@ -558,6 +680,12 @@ public class MainActivity extends AppCompatActivity {
         drawFrame=new Thread(new Runnable() {
             public void run() {
                 running=true;
+                if(saveFrames){
+                    if(frames != null){
+                        frames.clear();
+                    }
+                    frames = new ArrayList<>();
+                }
                 imgView = (ImageView) findViewById(R.id.image_view);
                 for (int i = 0; i < iter; i++) {
                     if(running) {
@@ -565,6 +693,9 @@ public class MainActivity extends AppCompatActivity {
                         imgView.post(new Runnable() {
                                 public void run() {
                                     imgView.setImageBitmap(overlay);
+                                    if(saveFrames) {
+                                        frames.add(overlay.copy(Bitmap.Config.ARGB_8888, true));
+                                    }
                                     if(randomFrameNum>0){
                                         if(currentRandomFrame==randomFrameNum) {
                                             randomize();
@@ -586,6 +717,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 running=false;
+                if(saveFrames){
+                    saveVideo();
+                }
             }
 
         });
@@ -599,7 +733,12 @@ public class MainActivity extends AppCompatActivity {
         isDefault=true;
         imgView.setImageBitmap(original);
         j=0;
-
+        if((int)(Math.random()*5)==1) {
+            Log.e("Ads",""+mInterstitialAd.isLoaded());
+            if (mInterstitialAd.isLoaded()) {
+                mInterstitialAd.show();
+            }
+        }
     }
     public void saveImage(View v){
         if(isDefault){
@@ -904,7 +1043,14 @@ public class MainActivity extends AppCompatActivity {
         if(resizeRatio>100){
             resizeRatio=100;
         }
-        Log.e("resize","w="+newW+" h="+newH+"ratio="+resizeRatio);
+        if(newW % 2 != 0){
+            newW += 1;
+        }
+        if(newH % 2 != 0){
+            newH += 1;
+        }
+        Log.e("Video","w="+newW+" h="+newH+"ratio="+resizeRatio);
+
         return Bitmap.createScaledBitmap(img,newW,newH,false);
     }
     public void selectColor(View v){

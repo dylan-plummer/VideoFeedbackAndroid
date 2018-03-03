@@ -17,6 +17,10 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.NativeExpressAdView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -33,8 +37,9 @@ import java.util.Comparator;
 import java.util.Date;
 
 public class PublicImages extends AppCompatActivity {
-    private ImageView currentImage,rate;
+    private ImageView currentImage,rate,nextArrow,backArrow;
     private TextView title,author,votes,date;
+    private NativeExpressAdView adView;
     private ProgressBar loading;
     private Spinner spinner;
     public ImageData data;
@@ -43,12 +48,14 @@ public class PublicImages extends AppCompatActivity {
     int index=0;
     private FirebaseAuth mAuth;
     DownloadImageTask downloadImage;
-    int adCOunt=0;
+    int adCount=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_public_images);
+        MobileAds.initialize(this, "ca-app-pub-2959515976305980~9139530954");
+        adView = (NativeExpressAdView)findViewById(R.id.adView);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Public Gallery");
@@ -56,6 +63,8 @@ public class PublicImages extends AppCompatActivity {
 
         currentImage=(ImageView)findViewById(R.id.current_image);
         rate=(ImageView)findViewById(R.id.image_rating);
+        nextArrow=(ImageView)findViewById(R.id.next_arrow);
+        backArrow=(ImageView)findViewById(R.id.back_arrow);
         title=(TextView) findViewById(R.id.title);
         author=(TextView)findViewById(R.id.author);
         votes=(TextView)findViewById(R.id.num_ratings);
@@ -78,7 +87,7 @@ public class PublicImages extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                adCOunt++;
+                adCount++;
                 fillImageList(adapterView.getItemAtPosition(i).toString());
 
             }
@@ -91,6 +100,29 @@ public class PublicImages extends AppCompatActivity {
 
         DrawerCreate drawer=new DrawerCreate();
         drawer.makeDrawer(this, this, mAuth, toolbar, "Public Gallery");
+    }
+    public void loadAd(){
+        adView.setVisibility(View.VISIBLE);
+        currentImage.setVisibility(View.INVISIBLE);
+        rate.setVisibility(View.INVISIBLE);
+        author.setText("These ads keep this app free, thank you!");
+        title.setVisibility(View.INVISIBLE);
+        votes.setVisibility(View.INVISIBLE);
+        date.setVisibility(View.INVISIBLE);
+        nextArrow.setVisibility(View.INVISIBLE);
+        backArrow.setVisibility(View.INVISIBLE);
+        AdRequest request = new AdRequest.Builder()
+                .addTestDevice("2CC2625EB00F3EB58B6E5BC0B53C5A1D")
+                .build();
+        adView.loadAd(request);
+        adView.setAdListener(new AdListener(){
+            @Override
+            public void onAdLoaded() {
+                // Load the next interstitial.
+                nextArrow.setVisibility(View.VISIBLE);
+                backArrow.setVisibility(View.VISIBLE);
+            }
+        });
     }
     @Override
     public void onResume() {
@@ -268,6 +300,24 @@ public class PublicImages extends AppCompatActivity {
         }
     }
     public void nextImage(View v){
+        Log.e("Ads",""+adCount);
+        if(adView.getVisibility()==View.VISIBLE){
+            adView.setVisibility(View.INVISIBLE);
+            currentImage.setVisibility(View.VISIBLE);
+            author.setText("");
+            rate.setVisibility(View.VISIBLE);
+            title.setVisibility(View.VISIBLE);
+            votes.setVisibility(View.VISIBLE);
+            date.setVisibility(View.VISIBLE);
+            adView.invalidate();
+        }
+        if((int)(Math.random()*6)==2) {
+            if(adCount>3){
+                loadAd();
+                adCount = 0;
+            }
+            return;
+        }
         if(index+1<topImages.size()){
             downloadImage.cancel(true);
             currentImage.setVisibility(View.INVISIBLE);
@@ -279,6 +329,7 @@ public class PublicImages extends AppCompatActivity {
             } else {
                 rate.setImageDrawable(getResources().getDrawable(R.drawable.star_empty));
             }
+            adCount++;
         }
 
     }
